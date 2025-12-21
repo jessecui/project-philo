@@ -1,13 +1,13 @@
 # Document Embedding API
 
-A FastAPI backend service that processes documents (PDF, TXT, MD, DOCX) and generates embeddings using HuggingFace sentence-transformers.
+A FastAPI backend service that processes documents (PDF, TXT, MD, DOCX) and generates sentence-level embeddings with paragraph tracking using HuggingFace sentence-transformers and NLTK.
 
 ## Features
 
 - 📄 Support for multiple document formats: PDF, TXT, MD, DOCX
 - 🤖 HuggingFace embeddings using sentence-transformers
-- 🚀 Fast and efficient embedding generation
-- 📦 Batch processing support for multiple documents
+- 📝 Sentence-level embedding with paragraph tracking
+- 🚀 Fast and efficient batch embedding generation
 - 🔒 CORS enabled for frontend integration
 
 ## Setup
@@ -51,6 +51,32 @@ python -m app.main
 
 The API will be available at `http://localhost:8000`
 
+### Testing
+
+Create a test document `test.txt` with sample text and test the embedding endpoint:
+
+```bash
+curl -X POST "http://localhost:8000/embed" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@test.txt"
+```
+
+Or test with Python:
+```python
+from app.utils.document_processor import DocumentProcessor
+from app.services.embedding_service import EmbeddingService
+
+doc_processor = DocumentProcessor()
+embedding_service = EmbeddingService()
+
+test_text = """Your test text here. With multiple sentences.
+
+And multiple paragraphs too."""
+
+sentences, para_indices, embeddings = embedding_service.embed_by_sentence(test_text, doc_processor)
+print(f"Sentences: {len(sentences)}, Paragraphs: {max(para_indices) + 1}")
+```
+
 ## API Endpoints
 
 ### Health Check
@@ -60,11 +86,11 @@ GET /health
 ```
 Check if the API is running.
 
-### Single Document Embedding
+### Document Embedding
 ```
 POST /embed
 ```
-Upload a single document and get its embedding.
+Upload a document and get sentence-level embeddings with paragraph tracking.
 
 **Request:**
 - Method: `POST`
@@ -85,56 +111,30 @@ curl -X POST "http://localhost:8000/embed" \
   "filename": "document.pdf",
   "file_type": ".pdf",
   "text_length": 1234,
-  "text_preview": "First 200 characters of extracted text...",
-  "embedding_dimension": 384,
-  "embedding": [0.123, -0.456, 0.789, ...]
+  "sentence_count": 15,
+  "paragraph_count": 5,
+  "sentences": [
+    "First sentence.",
+    "Second sentence.",
+    "Third sentence in new paragraph.",
+    ...
+  ],
+  "paragraph_indices": [0, 0, 1, ...],
+  "embeddings": [
+    [0.123, -0.456, 0.789, ...],
+    [0.234, -0.567, 0.890, ...],
+    ...
+  ],
+  "embedding_dimension": 384
 }
 ```
 
-### Batch Document Embedding
-```
-POST /embed-batch
-```
-Upload multiple documents (up to 10) and get their embeddings.
-
-**Request:**
-- Method: `POST`
-- Content-Type: `multipart/form-data`
-- Body: Multiple file uploads (field name: `files`)
-
-**Example using curl:**
-```bash
-curl -X POST "http://localhost:8000/embed-batch" \
-  -H "accept: application/json" \
-  -H "Content-Type: multipart/form-data" \
-  -F "files=@document1.pdf" \
-  -F "files=@document2.txt" \
-  -F "files=@document3.md"
-```
-
-**Response:**
-```json
-{
-  "results": [
-    {
-      "filename": "document1.pdf",
-      "file_type": ".pdf",
-      "text_length": 1234,
-      "text_preview": "First 200 characters...",
-      "embedding_dimension": 384,
-      "embedding": [...]
-    },
-    {
-      "filename": "document2.txt",
-      "file_type": ".txt",
-      "text_length": 567,
-      "text_preview": "First 200 characters...",
-      "embedding_dimension": 384,
-      "embedding": [...]
-    }
-  ]
-}
-```
+**Response Fields:**
+- `sentences`: List of extracted sentences
+- `paragraph_indices`: For each sentence, which paragraph it belongs to (0-indexed)
+- `embeddings`: Embedding vector for each sentence
+- `sentence_count`: Total number of sentences
+- `paragraph_count`: Total number of paragraphs detected
 
 ## Supported File Types
 
@@ -142,6 +142,14 @@ curl -X POST "http://localhost:8000/embed-batch" \
 - **Text** (`.txt`) - Plain text files
 - **Markdown** (`.md`) - Markdown documents
 - **Word** (`.docx`) - Microsoft Word documents
+
+## Text Processing
+
+The API uses NLTK for sentence tokenization and intelligently detects paragraph boundaries:
+- Paragraphs are split by double newlines (`\n\n`) when available
+- Falls back to single newlines (`\n`) for documents without double-newline formatting
+- Empty sentences and paragraphs are automatically filtered out
+- Paragraph indices are sequential (0, 1, 2...) with no gaps
 
 ## Embedding Model
 
@@ -169,10 +177,10 @@ backend/
 │   ├── main.py                    # FastAPI application
 │   ├── services/
 │   │   ├── __init__.py
-│   │   └── embedding_service.py   # Embedding generation
+│   │   └── embedding_service.py   # Sentence-level embedding generation
 │   └── utils/
 │       ├── __init__.py
-│       └── document_processor.py  # Document text extraction
+│       └── document_processor.py  # Document extraction & sentence splitting
 ├── uploads/                        # Temporary file storage (auto-created)
 ├── requirements.txt                # Python dependencies
 └── README.md                       # This file
@@ -183,19 +191,6 @@ backend/
 Once the server is running, visit:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
-
-## Development
-
-### Testing with Python
-```python
-import requests
-
-# Test embedding endpoint
-with open('test.pdf', 'rb') as f:
-    files = {'file': f}
-    response = requests.post('http://localhost:8000/embed', files=files)
-    print(response.json())
-```
 
 ## Error Handling
 
@@ -209,6 +204,6 @@ Error responses include a `detail` field with the error message.
 ## Notes
 
 - Uploaded files are temporarily saved and deleted after processing
-- Maximum 10 files per batch request
-- The first request may be slower as the model loads into memory
+- The first request may be slower as the model and NLTK data load into memory
 - Embeddings are deterministic for the same input text
+- Sentence splitting uses NLTK's punkt tokenizer (downloads automatically on first use)
