@@ -1,3 +1,4 @@
+import torch
 from sentence_transformers import SentenceTransformer
 from typing import List, Tuple, TYPE_CHECKING
 
@@ -19,8 +20,22 @@ class EmbeddingService:
                        - 'all-mpnet-base-v2' (higher quality, slower)
                        - 'paraphrase-multilingual-MiniLM-L12-v2' (multilingual)
         """
-        print(f"Loading embedding model: {model_name}")
-        self.model = SentenceTransformer(model_name)
+        # Detect best available device
+        if torch.backends.mps.is_available():
+            device = "mps"
+            print(
+                "🚀 MPS (Metal Performance Shaders) detected - using GPU acceleration"
+            )
+        elif torch.cuda.is_available():
+            device = "cuda"
+            print("🚀 CUDA detected - using GPU acceleration")
+        else:
+            device = "cpu"
+            print("Using CPU for inference")
+
+        print(f"Loading embedding model: {model_name} on {device}")
+        self.model = SentenceTransformer(model_name, device=device)
+        self.device = device
         print(
             f"Model loaded successfully. Embedding dimension: {self.model.get_sentence_embedding_dimension()}"
         )

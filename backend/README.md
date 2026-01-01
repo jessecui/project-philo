@@ -1,11 +1,11 @@
 # Document Embedding API
 
-A FastAPI backend service that processes documents (PDF, TXT, MD, DOCX) and generates sentence-level embeddings with paragraph tracking using HuggingFace sentence-transformers, NLTK, and FAISS for semantic search.
+A FastAPI backend service that processes documents (PDF, TXT, MD, DOCX) and generates sentence-level embeddings with paragraph tracking using HuggingFace sentence-transformers, NLTK, and FAISS for semantic search. Features Ray-based distributed processing for high-performance document indexing.
 
 ## Features
 
 - 📄 Support for multiple document formats: PDF, TXT, MD, DOCX
-- 🤖 HuggingFace embeddings using sentence-transformers
+- 🤖 HuggingFace embeddings using sentence-transformers (all-MiniLM-L6-v2, 384-dim)
 - 📝 Sentence-level embedding with paragraph tracking
 - 🔍 FAISS-based semantic search across indexed documents
 - 💾 Persistent vector store with metadata
@@ -208,6 +208,55 @@ curl -X POST "http://localhost:8000/index" \
 
 ---
 
+### Index Document (Distributed)
+```
+POST /index-distributed
+```
+Upload and index a document using Ray-based distributed workers for high-performance processing. **Recommended for large documents (1000+ sentences)** for optimal throughput.
+
+**Request:**
+- Method: `POST`
+- Content-Type: `multipart/form-data`
+- Body: File upload (field name: `file`)
+
+**Example:**
+```bash
+curl -X POST "http://localhost:8000/index-distributed" \
+  -F "file=@large_document.pdf"
+```
+
+**Response:**
+```json
+{
+  "doc_id": "550e8400-e29b-41d4-a716-446655440000",
+  "filename": "large_document.pdf",
+  "file_type": ".pdf",
+  "sentence_count": 5420,
+  "paragraph_count": 876,
+  "message": "Document indexed successfully with distributed processing",
+  "performance": {
+    "total_time": 12.3,
+    "parsing_time": 1.2,
+    "splitting_time": 0.8,
+    "embedding_time": 8.5,
+    "indexing_time": 1.8,
+    "throughput": 637.6,
+    "workers": 8
+  }
+}
+```
+
+**Performance Metrics:**
+- `total_time`: Total time from upload to indexing (seconds)
+- `parsing_time`: Time to extract text from document (seconds)
+- `splitting_time`: Time to split into sentences/paragraphs (seconds)
+- `embedding_time`: Time to generate embeddings (seconds)
+- `indexing_time`: Time to add to FAISS index (seconds)
+- `throughput`: Sentences processed per second
+- `workers`: Number of Ray workers used
+
+---
+
 ### Search Documents
 ```
 POST /search
@@ -360,8 +409,51 @@ By default, the API uses the `all-MiniLM-L6-v2` model from sentence-transformers
 - Fast inference
 - 384-dimensional embeddings
 - Good quality for most use cases
+- Automatic GPU/MPS acceleration on Apple Silicon (M-series chips)
 
 To use a different model, modify the `EmbeddingService` initialization in `app/services/embedding_service.py`:
+
+## Distributed Processing Architecture
+
+The distributed ingestion pipeline uses **Ray** to parallelize embedding generation across multiple CPU cores:
+
+### How It Works
+
+1. **Document Parsing**: Single-threaded extraction and sentence tokenization
+2. **Work Distribution**: Sentences are chunked and distributed to Ray workers
+3. **Parallel Embedding**: Each worker generates embeddings for its chunk using sentence-transformers
+4. **Result Aggregation**: Embeddings are collected and combined
+5. **FAISS Indexing**: Vectorstore is updated with the new embeddings
+
+### Ray Workers
+
+- **Default Configuration**: 8 workers for 8-core systems
+- **Batch Size**: 32 sentences per batch for optimal memory usage
+- **Auto-scaling**: Ray automatically manages worker lifecycle
+- **MPS Acceleration**: sentence-transformers automatically uses Metal
+
+### Performance Optimization Tips
+
+1. **CPU Cores**: More cores = better parallelism. Tune `num_workers` in `DistributedIngestionPipeline` initialization
+2. **Batch Size**: Larger batches reduce overhead but increase memory usage (default: 32)
+3. **Document Format**: PDF parsing is slowest; use TXT/MD when possible
+4. **Hardware**: Apple Silicon (M-series) gets automatic MPS acceleration for embedding inference
+
+### Benchmarking Your System
+
+Test distributed vs sequential performance on your hardware:
+
+```bash
+# Run benchmark comparison
+python -m app.utils.benchmark
+```
+
+This will index a sample document with both methods and report:
+- Total time for each approach
+- Embedding time breakdown
+- Throughput (sentences/second)
+- Speedup factor
+- Latency reduction percentage
 
 ```python
 # For higher quality (but slower):

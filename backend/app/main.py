@@ -8,6 +8,8 @@ from pydantic import BaseModel
 from app.services.embedding_service import EmbeddingService
 from app.utils.document_processor import DocumentProcessor
 from app.services.vector_store import VectorStore
+from app.services.distributed_ingestion import DistributedIngestionPipeline
+import time
 
 app = FastAPI(title="Document Embedding API")
 
@@ -24,6 +26,9 @@ app.add_middleware(
 embedding_service = EmbeddingService()
 document_processor = DocumentProcessor()
 vector_store = VectorStore()
+
+# Initialize distributed ingestion pipeline (8 workers for M4)
+distributed_pipeline = DistributedIngestionPipeline(num_workers=8, batch_size=32)
 
 # Create uploads directory if it doesn't exist
 UPLOAD_DIR = "uploads"
@@ -193,6 +198,116 @@ async def index_document(file: UploadFile = File(...)):
                 "sentence_count": len(sentences),
                 "paragraph_count": paragraph_count,
                 "message": "Document indexed successfully",
+            }
+        )
+
+    except Exception as e:
+        # Clean up file if it exists
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/index-distributed")
+async def index_document_distributed(file: UploadFile = File(...)):
+    """
+    Upload and index a document using distributed Ray workers for faster processing.
+    Ideal for large documents (1000+ sentences).
+
+    Returns:
+        - doc_id: Unique document identifier
+        - filename: Original filename
+        - file_type: Type of file uploaded
+        - sentence_count: Number of sentences indexed
+        - paragraph_count: Number of paragraphs detected
+        - processing_time: Total time in seconds
+        - embedding_time: Time spent on embedding generation
+        - throughput: Sentences per second
+        - workers: Number of Ray workers used
+    """
+    # Validate file type
+    allowed_extensions = {".pdf", ".txt", ".md", ".docx"}
+    file_ext = os.path.splitext(file.filename)[1].lower()
+
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type. Allowed types: {', '.join(allowed_extensions)}",
+        )
+
+    file_path = None
+    try:
+        start_time = time.time()
+
+        # Save uploaded file temporarily
+        file_path = os.path.join(UPLOAD_DIR, file.filename)
+        with open(file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+
+        # Extract text from document
+        parse_start = time.time()
+        text = document_processor.extract_text(file_path, file_ext)
+        parse_time = time.time() - parse_start
+
+        if not text.strip():
+            raise HTTPException(
+                status_code=400, detail="No text could be extracted from the document"
+            )
+
+        # Split into sentences and paragraphs
+        split_start = time.time()
+        sentences, paragraph_indices = (
+            document_processor.split_into_sentences_and_paragraphs(text)
+        )
+        split_time = time.time() - split_start
+
+        # Generate embeddings (distributed)
+        embeddings, metrics = distributed_pipeline.process_document(
+            sentences, paragraph_indices
+        )
+
+        # Clean up uploaded file
+        os.remove(file_path)
+
+        # Generate unique document ID
+        doc_id = str(uuid.uuid4())
+
+        # Index in vector store
+        index_start = time.time()
+        success = vector_store.index_document(
+            doc_id=doc_id,
+            filename=file.filename,
+            file_type=file_ext,
+            sentences=sentences,
+            paragraph_indices=paragraph_indices,
+            embeddings=embeddings,
+        )
+        index_time = time.time() - index_start
+
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to index document")
+
+        total_time = time.time() - start_time
+        paragraph_count = max(paragraph_indices) + 1 if paragraph_indices else 0
+
+        return JSONResponse(
+            content={
+                "doc_id": doc_id,
+                "filename": file.filename,
+                "file_type": file_ext,
+                "sentence_count": len(sentences),
+                "paragraph_count": paragraph_count,
+                "message": "Document indexed successfully with distributed processing",
+                "performance": {
+                    "total_time": round(total_time, 2),
+                    "parsing_time": round(parse_time, 2),
+                    "splitting_time": round(split_time, 2),
+                    "embedding_time": round(metrics.embedding_time, 2),
+                    "indexing_time": round(index_time, 2),
+                    "throughput": round(metrics.sentences_per_second, 1),
+                    "workers": distributed_pipeline.num_workers,
+                },
             }
         )
 
