@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class EmbeddingService:
     """Service for generating text embeddings using HuggingFace models."""
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2", force_cpu: bool = False):
         """
         Initialize the embedding service with a pre-trained model.
 
@@ -19,9 +19,13 @@ class EmbeddingService:
                        Other options:
                        - 'all-mpnet-base-v2' (higher quality, slower)
                        - 'paraphrase-multilingual-MiniLM-L12-v2' (multilingual)
+            force_cpu: If True, force CPU usage even if MPS/CUDA is available
         """
         # Detect best available device
-        if torch.backends.mps.is_available():
+        if force_cpu:
+            device = "cpu"
+            print("Forcing CPU for inference")
+        elif torch.backends.mps.is_available():
             device = "mps"
             print(
                 "🚀 MPS (Metal Performance Shaders) detected - using GPU acceleration"
@@ -36,6 +40,7 @@ class EmbeddingService:
         print(f"Loading embedding model: {model_name} on {device}")
         self.model = SentenceTransformer(model_name, device=device)
         self.device = device
+        self.model_name = model_name
         print(
             f"Model loaded successfully. Embedding dimension: {self.model.get_sentence_embedding_dimension()}"
         )

@@ -2,8 +2,12 @@ import faiss
 import numpy as np
 import json
 import os
-from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass, asdict
+import time
+from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
+from dataclasses import dataclass, asdict, field
+
+if TYPE_CHECKING:
+    from app.services.reranker_service import CrossEncoderReranker
 
 
 @dataclass
@@ -37,6 +41,10 @@ class SearchResult:
     paragraph_text: str
     matched_sentences: List[str]
     similarity_scores: List[float]
+    # Optional fields for 2-stage retrieval with context
+    reranking_score: Optional[float] = None
+    context_paragraphs_before: Optional[List[str]] = None
+    context_paragraphs_after: Optional[List[str]] = None
 
 
 class VectorStore:
@@ -344,3 +352,170 @@ class VectorStore:
             "total_paragraphs": len(self.paragraph_cache),
             "embedding_dimension": self.embedding_dim,
         }
+
+    def get_paragraph_with_context(
+        self, doc_id: str, para_idx: int, context_window: int = 2
+    ) -> Tuple[Optional[str], List[str], List[str]]:
+        """
+        Get a paragraph with surrounding context paragraphs.
+
+        Args:
+            doc_id: Document ID
+            para_idx: Paragraph index
+            context_window: Number of paragraphs before and after to include (default: 2)
+
+        Returns:
+            Tuple of (paragraph_text, paragraphs_before, paragraphs_after)
+            Returns (None, [], []) if paragraph not found
+        """
+        # Get the main paragraph
+        main_paragraph = self.paragraph_cache.get((doc_id, para_idx))
+        if not main_paragraph:
+            return (None, [], [])
+
+        # Get document metadata to know total paragraphs
+        doc_meta = self.documents.get(doc_id)
+        if not doc_meta:
+            return (main_paragraph, [], [])
+
+        # Get context before
+        paragraphs_before = []
+        for i in range(max(0, para_idx - context_window), para_idx):
+            para = self.paragraph_cache.get((doc_id, i))
+            if para:
+                paragraphs_before.append(para)
+
+        # Get context after
+        paragraphs_after = []
+        for i in range(
+            para_idx + 1, min(doc_meta.total_paragraphs, para_idx + context_window + 1)
+        ):
+            para = self.paragraph_cache.get((doc_id, i))
+            if para:
+                paragraphs_after.append(para)
+
+        return (main_paragraph, paragraphs_before, paragraphs_after)
+
+    def search_with_reranking(
+        self,
+        query_text: str,
+        query_embedding: List[float],
+        reranker: "CrossEncoderReranker",
+        top_k_faiss: int = 50,
+        top_n_final: int = 10,
+        context_window: int = 2,
+    ) -> Tuple[List[SearchResult], Dict[str, float]]:
+        """
+        Two-stage retrieval: FAISS candidate retrieval + cross-encoder reranking.
+
+        Args:
+            query_text: Search query text (needed for cross-encoder)
+            query_embedding: Query embedding vector (for FAISS stage)
+            reranker: CrossEncoderReranker instance
+            top_k_faiss: Number of candidates to retrieve from FAISS (default: 50)
+            top_n_final: Number of final results after reranking (default: 10)
+            context_window: Number of paragraphs before/after to include (default: 2)
+
+        Returns:
+            Tuple of (search_results, timing_info) where:
+            - search_results: List of reranked SearchResult objects with context
+            - timing_info: Dict with 'faiss_time', 'reranking_time', 'total_time'
+        """
+        total_start = time.time()
+
+        # Stage 1: FAISS retrieval
+        faiss_start = time.time()
+        if self.index.ntotal == 0:
+            return ([], {"faiss_time": 0.0, "reranking_time": 0.0, "total_time": 0.0})
+
+        # Convert query to numpy array
+        query_array = np.array([query_embedding], dtype=np.float32)
+
+        # Retrieve top_k_faiss sentences from FAISS
+        distances, indices = self.index.search(
+            query_array, min(top_k_faiss, self.index.ntotal)
+        )
+
+        # Group by paragraph and build paragraph list
+        paragraph_groups: Dict[Tuple[str, int], List[Tuple[str, float]]] = {}
+
+        for distance, idx in zip(distances[0], indices[0]):
+            if idx == -1:
+                continue
+
+            sentence_meta = self.sentences[idx]
+            key = (sentence_meta.doc_id, sentence_meta.paragraph_idx)
+
+            # Convert L2 distance to similarity score
+            similarity = 1.0 / (1.0 + distance)
+
+            if key not in paragraph_groups:
+                paragraph_groups[key] = []
+
+            paragraph_groups[key].append((sentence_meta.sentence_text, similarity))
+
+        # Build paragraph list for reranking
+        paragraphs_for_reranking = []
+        for (doc_id, para_idx), matches in paragraph_groups.items():
+            paragraph_text = self.paragraph_cache.get((doc_id, para_idx), "")
+            if paragraph_text:
+                paragraphs_for_reranking.append((doc_id, para_idx, paragraph_text))
+
+        faiss_time = time.time() - faiss_start
+
+        # Stage 2: Cross-encoder reranking
+        if not paragraphs_for_reranking:
+            return (
+                [],
+                {
+                    "faiss_time": faiss_time,
+                    "reranking_time": 0.0,
+                    "total_time": time.time() - total_start,
+                },
+            )
+
+        reranked_paragraphs, reranking_time = reranker.rerank_paragraphs(
+            query_text, paragraphs_for_reranking, top_n=top_n_final
+        )
+
+        # Build final results with context expansion
+        results = []
+        for doc_id, para_idx, para_text, rerank_score in reranked_paragraphs:
+            doc_meta = self.documents.get(doc_id)
+            if not doc_meta:
+                continue
+
+            # Get context paragraphs
+            main_para, paras_before, paras_after = self.get_paragraph_with_context(
+                doc_id, para_idx, context_window
+            )
+
+            # Get matched sentences from FAISS stage
+            matches = paragraph_groups.get((doc_id, para_idx), [])
+            matches.sort(key=lambda x: x[1], reverse=True)
+            matched_sentences = [sent for sent, _ in matches]
+            similarity_scores = [score for _, score in matches]
+
+            results.append(
+                SearchResult(
+                    doc_id=doc_id,
+                    filename=doc_meta.filename,
+                    paragraph_idx=para_idx,
+                    paragraph_text=para_text,
+                    matched_sentences=matched_sentences,
+                    similarity_scores=similarity_scores,
+                    reranking_score=rerank_score,
+                    context_paragraphs_before=paras_before,
+                    context_paragraphs_after=paras_after,
+                )
+            )
+
+        total_time = time.time() - total_start
+
+        timing_info = {
+            "faiss_time": faiss_time,
+            "reranking_time": reranking_time,
+            "total_time": total_time,
+        }
+
+        return (results, timing_info)

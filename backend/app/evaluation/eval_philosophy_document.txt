@@ -1,0 +1,200 @@
+Utilitarianism is a consequentialist ethical theory that evaluates the morality of actions based on their outcomes. The theory has been developed and refined by many philosophers over centuries.
+
+Classical utilitarianism, founded by Jeremy Bentham in the late 18th century, argues that the right action is the one that maximizes overall happiness or pleasure. Bentham developed the hedonic calculus as a method for calculating the amount of pleasure or pain produced by an action.
+
+John Stuart Mill modified Bentham's utilitarianism by introducing qualitative distinctions between pleasures. Mill argued that intellectual and moral pleasures are superior to mere physical pleasures, coining the famous phrase "it is better to be Socrates dissatisfied than a fool satisfied."
+
+Act utilitarianism holds that the rightness of an action depends on its actual consequences in that specific situation. Every individual action should be evaluated by whether it maximizes utility in that particular case, without reference to general rules.
+
+Rule utilitarianism argues that the rightness of an action depends on whether it conforms to rules that, if generally followed, would maximize utility. Rather than calculating consequences for each action, we should follow rules that tend to promote the greatest good.
+
+Average utilitarianism suggests we should maximize the average utility per person rather than total utility. This view addresses concerns about population ethics and whether it's better to have a larger population with lower average happiness or smaller population with higher average happiness.
+
+Total utilitarianism maintains that we should maximize the total sum of utility across all individuals. This classical formulation can lead to the "repugnant conclusion" where a very large population with barely positive welfare is considered better than a smaller population with very high welfare.
+
+Preference utilitarianism, developed by R.M. Hare and Peter Singer, holds that the right action maximizes the satisfaction of preferences rather than pleasure or happiness. This approach respects individual autonomy by focusing on what people actually want rather than what would make them happy.
+
+Negative utilitarianism prioritizes the reduction of suffering over the promotion of happiness. Proponents argue that preventing pain and suffering is more urgent and important than creating positive experiences, as suffering tends to be more intense than pleasure.
+
+Two-level utilitarianism, proposed by R.M. Hare, distinguishes between intuitive and critical thinking. At the intuitive level, we follow general rules and moral intuitions, while at the critical level, we engage in utilitarian calculations when rules conflict or in unusual situations.
+
+Motive utilitarianism evaluates actions based on the utility of the motives behind them rather than the actions themselves. This approach suggests that we should cultivate motives and character traits that generally lead to good consequences, even if specific actions sometimes fail to maximize utility.
+
+Global utilitarianism extends the scope of moral concern to all sentient beings globally, not just members of one's own community or nation. This view has been influential in effective altruism and arguments for cosmopolitan moral obligations.
+
+Hedonistic utilitarianism specifically defines utility in terms of pleasure and pain, following Bentham's original formulation. All that matters morally is the balance of pleasure over pain, making it a monistic theory of value.
+
+Welfare utilitarianism defines utility more broadly as well-being or welfare rather than just pleasure. This allows for pluralistic accounts where multiple things contribute to well-being, such as autonomy, relationships, achievement, and pleasure.
+
+Scalar utilitarianism rejects the binary distinction between right and wrong actions. Instead, actions exist on a continuum based on how much utility they produce, with some actions being better or worse than others without sharp moral boundaries.
+
+Satisficing utilitarianism argues that actions are permissible if they produce "good enough" consequences rather than optimal ones. This view addresses concerns about the demanding nature of classical utilitarianism, which requires maximizing utility.
+
+Cooperative utilitarianism focuses on the utility produced by coordination and cooperation between agents. This approach considers how multiple actors can work together to achieve better overall outcomes than individual utility maximization would produce.
+
+Indirect utilitarianism suggests that we can best promote utility by not directly trying to maximize it in each decision. Instead, we should follow virtues, rules, or dispositions that indirectly lead to better overall consequences.
+
+Generational utilitarianism considers the utility of future generations in moral calculations. This raises questions about temporal discounting, whether future people's interests count equally, and our obligations to those who don't yet exist.
+
+Expected utility utilitarianism holds that we should maximize expected utility rather than actual utility, since we rarely know with certainty what consequences our actions will have. This connects utilitarian ethics to decision theory and probability.
+
+Multi-level utilitarianism extends Hare's two-level theory by recognizing additional levels of moral thinking, such as institutional design, cultural norms, and constitutional principles, each operating at different scales and time horizons.
+
+Prioritarian utilitarianism gives extra weight to improvements in well-being for those who are worse off. While still focused on maximizing total welfare, it incorporates concerns about equality and distribution that pure utilitarianism ignores.
+
+Threshold utilitarianism sets a minimum threshold of well-being that must be secured for all before maximizing total or average utility. This view combines utilitarian and rights-based considerations, ensuring basic needs are met first.
+
+Rule-consequentialism evaluates moral rules by their consequences rather than individual actions. While similar to rule utilitarianism, it can incorporate non-utilitarian values into the assessment of which rules have the best consequences.
+
+Actual consequence utilitarianism judges actions solely by their actual results, not foreseeable or expected consequences. This approach faces challenges from moral luck and the difficulty of knowing actual consequences.
+
+Foreseeable consequence utilitarianism evaluates actions based on consequences that were reasonably foreseeable at the time of action. This view addresses concerns about holding agents responsible for unforeseeable outcomes while maintaining focus on consequences.
+
+Objective list utilitarianism defines utility in terms of an objective list of goods that constitute well-being, such as knowledge, friendship, achievement, and pleasure. This pluralistic approach rejects the idea that well-being can be reduced to a single dimension.
+
+Desire-fulfillment utilitarianism holds that utility consists in the satisfaction of desires or preferences. Unlike hedonistic views, this can include desires about states of affairs that don't directly affect one's experiences, such as posthumous reputation.
+
+Virtue consequentialism combines utilitarian concern for consequences with virtue ethics' focus on character. The right action is what a virtuous person would do, where virtues are understood as dispositions that generally promote good consequences.
+
+Restricted utilitarianism limits the scope of utilitarian calculations to certain domains while allowing other moral considerations in other areas. For example, it might apply utilitarian reasoning to policy but not to personal relationships or special obligations.
+
+Ideal utilitarianism, championed by G.E. Moore, argues that some things have intrinsic value independent of pleasure or happiness. Values such as beauty, truth, and friendship are considered good in themselves, even if they do not produce positive mental states.
+
+Theological utilitarianism, most famously associated with William Paley, equates the greatest happiness with the will of God. It argues that God desires the happiness of his creatures, and therefore, promoting utility is a religious duty backed by divine sanctions.
+
+Person-affecting utilitarianism holds that an action can only be good or bad if it is good or bad for someone. This view focuses on making existing people happy rather than making happy people, avoiding the conclusion that we must maximize population size.
+
+Impersonal utilitarianism rejects the restriction that utility must attach to specific individuals. It values the total amount of good in the universe regardless of who experiences it, often leading to the conclusion that creating new happy beings is a moral positive.
+
+Subjective utilitarianism evaluates actions based on the agent's beliefs and perspective at the time of acting. An action is right if the agent believed it would maximize utility, focusing on the decision-making procedure rather than external facts.
+
+Objective utilitarianism holds that an action is right only if it actually maximizes utility given the real facts of the world. Even if an agent had good intentions or reasonable beliefs, an action is wrong if it fails to produce the best possible outcome.
+
+Ordinal utilitarianism argues that utility cannot be measured in precise numerical units, but only ranked. We can say one outcome is better than another, but not "twice as good," complicating the mathematical aggregation of welfare across groups.
+
+Cardinal utilitarianism assumes that utility is a measurable quantity with specific units. This allows for precise mathematical calculations and comparisons of intensity, enabling the summation of total welfare across large populations.
+
+Critical-level utilitarianism addresses population ethics by positing that adding a person to the population only increases total utility if their welfare is above a certain positive "critical level." Lives that are barely worth living do not add to the social good in this view.
+
+Geometric utilitarianism incorporates the economic principle of diminishing marginal utility. It recognizes that the same amount of resources produces less utility for a wealthy person than for a poor person, often supporting redistributive policies to maximize overall happiness.
+
+Institutional utilitarianism applies utilitarian calculus specifically to the design of social and political institutions, rather than individual conduct. It suggests that while individuals may be partial, public institutions must be designed to impartially maximize aggregate welfare.
+
+Sentientist utilitarianism explicitly restricts the moral community to beings capable of subjective experience. It rejects the idea that ecosystems, species, or non-living entities have intrinsic value, focusing solely on the pain and pleasure of conscious creatures.
+
+Anthropocentric utilitarianism limits the scope of utility calculation primarily to human beings. Historically common, this view treats animal suffering as instrumentally relevant only insofar as it affects human character or interests, unlike broader sentientist views.
+
+Liberal utilitarianism seeks to reconcile utility maximization with the protection of individual liberties. It argues that maintaining a sphere of protected rights and personal freedom is essential for the long-term maximization of social utility and progress.
+
+Necessitarian utilitarianism focuses on minimizing the suffering of those who must exist. It argues there is no moral obligation to bring happy beings into existence, but once beings exist, we have a strong obligation to ensure their well-being.
+
+Single-level utilitarianism rejects the distinction between critical and intuitive levels of thinking. It argues that agents should directly apply the principle of utility to every decision, viewing rules of thumb as potentially dangerous distractions from the ultimate goal.
+
+Hierarchical utilitarianism assigns different weights or priorities to different types of utility. It may hold that avoiding violations of rights or meeting basic needs has lexical priority over satisfying luxury preferences, creating a structured hierarchy of values.
+
+Evolutionary utilitarianism views our moral instincts and capacity for happiness as products of natural selection. It often suggests that our evolved moral sense is a heuristic for utility, and that we should align our ethical systems with these biological realities to be effective.
+
+Universal utilitarianism emphasizes the requirement of universalizability in moral judgment. It argues that for an action to be right, one must be willing to accept the consequences if everyone acted in the same way, bridging Kantian and utilitarian reasoning.
+
+Agent-relative utilitarianism allows that while the general goal is maximizing utility, agents may have special permissions to prioritize their own projects or loved ones. This modifies the strict impartiality of standard utilitarianism to accommodate the reality of personal commitments.
+
+Deontology is an ethical framework that judges the morality of an action based on the action's adherence to rules or duties. Unlike consequentialist theories, it posits that certain actions are inherently right or wrong, regardless of their outcomes or the amount of good they produce.
+
+Kantian ethics, developed by Immanuel Kant, is a deontological theory centered on the idea that moral obligations are derived from pure reason. It argues that we must act according to maxims that we could at the same time will to become universal laws.
+
+The Categorical Imperative is the central philosophical concept in Kantian moral philosophy. It denotes an absolute, unconditional requirement that must be obeyed in all circumstances and is justified as an end in itself, rather than as a means to some other end.
+
+Virtue ethics emphasizes the role of character and virtue in moral philosophy rather than looking at the consequences of actions or doing one's duty. It suggests that a moral life is one lived by a virtuous person, focusing on "being" rather than "doing."
+
+Eudaimonism is a moral philosophy that defines right action as that which leads to "happiness" or "flourishing." Originating in Aristotelian ethics, it focuses on achieving the highest human good through the cultivation of virtues and the fulfillment of one's function.
+
+Stoicism is a school of Hellenistic philosophy which teaches that virtue, the highest good, is based on knowledge. Stoics argue that the wise live in harmony with the divine Reason that governs nature, and are indifferent to the vicissitudes of fortune and to pleasure and pain.
+
+Divine Command Theory proposes that an action's status as morally good is equivalent to whether it is commanded by God. This theory asserts that moral obligations arise directly from God's commands, making morality dependent upon the will of the divine.
+
+Natural Law Theory holds that morality is inherent in the order of nature and can be discovered through reason. It argues that there are universal moral principles that are valid for all people and all times, independent of human laws or conventions.
+
+Moral Relativism is the view that moral judgments are true or false only relative to some particular standpoint, such as a culture or a historical period. It denies the existence of absolute or universal moral truths that apply to all people everywhere.
+
+Ethical Egoism is the normative ethical position that moral agents ought to do what is in their own self-interest. It differs from psychological egoism, which claims people do only act in their self-interest, by arguing that they should do so.
+
+Social Contract Theory argues that individuals consent, either explicitly or tacitly, to surrender some of their freedoms and submit to the authority of the ruler or magistrate in exchange for protection of their remaining rights and the maintenance of social order.
+
+State of Nature is a concept used in moral and political philosophy to denote the hypothetical conditions of what the lives of people might have been like before societies came into existence. Philosophers like Hobbes, Locke, and Rousseau used this to explain the origin of government.
+
+Libertarianism is a political philosophy that upholds liberty as a core principle. Libertarians seek to maximize political freedom and autonomy, emphasizing freedom of choice, voluntary association, and individual judgment, often advocating for a minimal state.
+
+Communitarianism is a philosophy that emphasizes the connection between the individual and the community. It critiques the excessive individualism of liberalism, arguing that a person's identity and moral duties are shaped by their social relationships and traditions.
+
+Rawlsian Justice, or "Justice as Fairness," suggests that principles of justice should be chosen behind a "veil of ignorance." In this hypothetical state, no one knows their place in society, class, or natural assets, ensuring that the rules selected are fair to all.
+
+Marxism is a method of socioeconomic analysis that uses a materialist interpretation of historical development to understand class relations and social conflict. It views capitalist society as defined by the struggle between the bourgeoisie, who own the means of production, and the proletariat.
+
+Historical Materialism is the methodological approach of Marxist historiography that focuses on human societies and their development through history. It argues that the material conditions of a society's mode of production fundamentally determine its organization and development.
+
+Existentialism is a philosophical tradition that emphasizes the existence of the individual person as a free and responsible agent determining their own development through acts of the will. It focuses on the anxiety, absurdity, and authenticity of the human condition.
+
+Nihilism is the rejection of all religious and moral principles, often in the belief that life is meaningless. It suggests that life lacks intrinsic value, purpose, or meaning, and that established moral and political orders are essentially baseless.
+
+Absurdism refers to the conflict between the human tendency to seek inherent value and meaning in life and the "silent," purposeless universe. Philosophers like Camus argue that we should embrace this absurdity rather than trying to escape it through false hope.
+
+Phenomenology is the philosophical study of the structures of experience and consciousness. It focuses on how things appear to the subject in the first-person perspective, setting aside questions about the objective reality of the external world.
+
+Epistemological Foundationalism is the theory that knowledge rests upon a set of basic or foundational beliefs that are self-justifying. These basic beliefs provide the support for all other non-basic beliefs, creating a structured hierarchy of knowledge.
+
+Coherentism is a theory of justification which holds that a belief is justified if and only if it coheres with a system of beliefs. Unlike foundationalism, it denies that there are basic beliefs, arguing instead that justification is a holistic property of a belief system.
+
+Empiricism is a theory that states that knowledge comes only or primarily from sensory experience. It emphasizes the role of empirical evidence in the formation of ideas, over the notion of innate ideas or traditions, and is fundamental to the scientific method.
+
+Rationalism is the epistemological view that regards reason as the chief source and test of knowledge. Rationalists argue that reality has an intrinsically logical structure and that there are significant truths that the mind can grasp directly, independent of sensory experience.
+
+Solipsism is the philosophical idea that only one's own mind is sure to exist. It holds that knowledge of anything outside one's own mind is unsure; the external world and other minds cannot be known and might not exist outside the mind.
+
+Dualism is the view in the philosophy of mind that the mind and body are distinct and separable. Substance dualism, famously defended by Descartes, argues that the mental and the physical are two fundamentally different kinds of substance.
+
+Materialism is a form of philosophical monism which holds that matter is the fundamental substance in nature. It argues that all things, including mental states and consciousness, are results of material interactions and can be explained by physical processes.
+
+Panpsychism is the view that mind or a mind-like aspect is a fundamental and ubiquitous feature of reality. It suggests that consciousness is not unique to humans or animals but is present in some form in all physical matter, down to the atomic level.
+
+Functionalism in the philosophy of mind is the doctrine that what makes something a mental state of a particular type does not depend on its internal constitution, but rather on the way it functions, or the role it plays, in the system of which it is a part.
+
+Determinism is the philosophical proposition that every event, including every human decision and action, is the inevitable and necessary consequence of antecedent states of affairs. It challenges the concept of free will by suggesting the future is fixed by the past.
+
+Compatibilism is the belief that free will and determinism are mutually compatible and that it is possible to believe in both without being logically inconsistent. It often redefines free will as freedom to act according to one's motives without external hindrance.
+
+Pragmatism is a philosophical tradition that considers words and thought as tools and instruments for prediction, problem solving, and action. It assesses the truth of beliefs or theories in terms of the success of their practical application.
+
+Logical Positivism is a movement in Western philosophy whose central thesis was the verification principle. It held that only statements verifiable through direct observation or logical proof are meaningful, dismissing metaphysics and theology as meaningless.
+
+Structuralism is a methodology that implies elements of human culture must be understood by way of their relationship to a broader, overarching system or structure. It seeks to uncover the structures that underlie all the things that humans do, think, perceive, and feel.
+
+Post-structuralism is a movement that critiques and extends structuralism. It rejects the idea of static structures and stable meanings, arguing that meaning is fluid, unstable, and always subject to interpretation and the interplay of power.
+
+Critical Theory is a social theory oriented toward critiquing and changing society as a whole. It differs from traditional theory, which seeks only to understand or explain society, by aiming to dig beneath the surface of social life and uncover the assumptions that keep us from a full and true understanding of how the world works.
+
+Constructivism in international relations is the claim that significant aspects of international relations are historically and socially constructed, rather than inevitable consequences of human nature or other essential characteristics of world politics.
+
+Realism in international relations focuses on the competitive and conflictual side of international politics. It assumes that the international system is anarchic, states are the primary actors, and they act in their own self-interest to secure power and security.
+
+Liberalism in international relations theory emphasizes international cooperation and the rejection of power politics. It argues that international institutions and trade can reduce conflict and that states can achieve absolute gains through cooperation.
+
+Feminist Ethics is an approach to ethics that builds on the belief that traditionally ethical theorizing has undervalued and/or underappreciated women's moral experience. It often emphasizes the importance of interpersonal relationships and care over abstract rules.
+
+Care Ethics is a normative ethical theory that holds that moral action centers on interpersonal relationships and care or benevolence as a virtue. It is distinct from ethical theories that rely on principles of justice or universal rules.
+
+Environmental Ethics is the discipline in philosophy that studies the moral relationship of human beings to, and also the value and moral status of, the environment and its non-human contents. It challenges the anthropocentric views found in traditional ethics.
+
+Bioethics is the study of the ethical issues emerging from advances in biology and medicine. It is a moral discernment as it relates to medical policy and practice, addressing questions about life, death, and the nature of human well-being.
+
+Meta-ethics is the branch of ethics that seeks to understand the nature of ethical properties, statements, attitudes, and judgments. It asks questions about what morality is, rather than what is moral, focusing on the meaning of ethical terms.
+
+Cognitivism in ethics is the view that ethical sentences express propositions and can therefore be true or false. It holds that moral judgments are capable of being objectively true, linking moral discourse to the realm of facts and knowledge.
+
+Non-cognitivism is the meta-ethical view that moral statements do not express propositions and thus cannot be true or false. Instead, they express emotional attitudes or commands, functioning more like exclamations than descriptions of reality.
+
+Error Theory is a meta-ethical view which holds that although moral statements do express propositions, all such propositions are false. It argues that objective moral values do not exist, so any claim that something is "wrong" is factually incorrect.
+
+Moral Intuitionism is the view that there are objective moral truths which we can know through a faculty of intuition. It suggests that basic moral principles are self-evident to a mature mind, not requiring inference from other beliefs.
+
+Moral Particularism is the view that there are no defensible moral principles and that moral thought does not consist in the application of moral principles to cases. Instead, moral judgment is seen as a sensitivity to the specific features of a particular situation.
+

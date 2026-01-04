@@ -1,0 +1,69 @@
+Loading test_philosophy_document.txt...
+Loaded document with 26231 characters
+Multiplied by 100x = 2623100 total characters
+
+Benchmarking: Single core CPU non-Ray vs 10 cores Ray (both CPU only)
+
+Set PyTorch to use 1 thread(s) for sequential benchmark
+
+Forcing CPU for inference
+Loading embedding model: all-MiniLM-L6-v2 on cpu
+Model loaded successfully. Embedding dimension: 384
+Processing text...
+Adding unique tokens to sentences to prevent caching...
+Extracted 19900 sentences across 10000 paragraphs
+
+=== Single Core CPU Non-Ray (Sequential) Ingestion ===
+Device: cpu
+Clearing FAISS data...
+Embedding time: 28.85s
+FAISS indexing time: 0.33s
+Total time: 29.18s
+Throughput: 681.9 sentences/sec
+
+=== 10 Cores Ray Distributed (CPU Only) Ingestion ===
+Clearing FAISS data...
+Initializing Ray and workers...
+2026-01-03 18:49:21,024 INFO worker.py:1998 -- Started a local Ray instance. View the dashboard at http://127.0.0.1:8265 
+Initializing 10 CPU-based embedding workers...
+(EmbeddingWorker pid=67065) [Worker 1fb24e416eadabf69702ed9248039a4c9bb490a4995e1335291bf618] Loading model: all-MiniLM-L6-v2 on CPU
+(EmbeddingWorker pid=67065) [Worker 1fb24e416eadabf69702ed9248039a4c9bb490a4995e1335291bf618] Model loaded
+✓ 10 workers initialized and ready
+Initialization time: 6.35s
+
+Distributing 19900 sentences across 10 workers (~1990 sentences per worker)
+Waiting for 10 workers to complete...
+Embedding completed: 19900 sentences in 7.15s (2782.1 sentences/sec)
+Indexing to FAISS...
+Embedding time (excluding init): 7.15s (embedding: 7.15s)
+FAISS indexing time: 0.21s
+Total time (excluding init): 7.36s
+Total time (including init): 13.71s
+Throughput: 2703.6 sentences/sec
+(EmbeddingWorker pid=67059) [Worker c2e3600383b844d47687db5a1559a6e935896da932a7978b4d0dd440] Loading model: all-MiniLM-L6-v2 on CPU [repeated 9x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)
+(EmbeddingWorker pid=67057) [Worker 26ae4a4642bf0560ca5698dbe6fe54e338339ac00701ccc52e3613ac] Model loaded [repeated 9x across cluster]
+Ray workers shutdown
+
+Clearing FAISS data...
+
+=== Results (Excluding Initialization) ===
+Speedup: 3.96x
+Latency Reduction: 74.8%
+Throughput Increase: 3.96x
+
+=== Results (Including Initialization) ===
+Speedup: 2.13x
+Latency Reduction: 53.0%
+Sequential: 29.18s vs Ray total: 13.71s
+
+=== Final Summary ===
+Sequential (non-Ray, CPU): 29.18s, 681.9 sentences/sec
+10 Cores Ray (CPU): 7.36s, 2703.6 sentences/sec
+
+Excluding initialization:
+  Speedup: 3.96x
+  Latency Reduction: 74.8%
+
+Including initialization:
+  Speedup: 2.13x
+  Latency Reduction: 53.0%

@@ -9,6 +9,7 @@ from app.services.embedding_service import EmbeddingService
 from app.utils.document_processor import DocumentProcessor
 from app.services.vector_store import VectorStore
 from app.services.distributed_ingestion import DistributedIngestionPipeline
+from app.services.reranker_service import CrossEncoderReranker
 import time
 
 app = FastAPI(title="Document Embedding API")
@@ -26,6 +27,7 @@ app.add_middleware(
 embedding_service = EmbeddingService()
 document_processor = DocumentProcessor()
 vector_store = VectorStore()
+reranker = CrossEncoderReranker()  # Initialize reranker for 2-stage retrieval
 
 # Initialize distributed ingestion pipeline (8 workers for M4)
 distributed_pipeline = DistributedIngestionPipeline(num_workers=8, batch_size=32)
@@ -40,6 +42,9 @@ class SearchRequest(BaseModel):
     query: str
     top_k: int = 5
     deduplicate_paragraphs: bool = True
+    use_reranking: bool = False  # Enable 2-stage retrieval with cross-encoder reranking
+    top_k_faiss: int = 50  # Number of candidates from FAISS (stage 1)
+    context_window: int = 2  # Number of paragraphs before/after for context expansion
 
 
 @app.get("/")
@@ -325,28 +330,36 @@ async def search_documents(request: SearchRequest):
 
     Args:
         query: Search query text
-        top_k: Number of results to return (default: 5)
+        top_k: Number of final results to return (default: 5)
         deduplicate_paragraphs: Return only one result per paragraph (default: True)
+        use_reranking: Enable 2-stage retrieval with cross-encoder reranking (default: False)
+        top_k_faiss: Number of candidates from FAISS stage (default: 50, only used if use_reranking=True)
+        context_window: Number of paragraphs before/after for context expansion (default: 2)
 
     Returns:
         List of search results with matched sentences and paragraph context
+        If use_reranking=True, also includes reranking_score and timing breakdown
     """
     try:
         # Generate query embedding
         query_embedding = embedding_service.embed_texts([request.query])[0]
 
-        # Search vector store
-        results = vector_store.search(
-            query_embedding=query_embedding,
-            top_k=request.top_k,
-            deduplicate_paragraphs=request.deduplicate_paragraphs,
-        )
+        # Choose retrieval method
+        if request.use_reranking:
+            # 2-stage retrieval: FAISS + cross-encoder reranking
+            results, timing = vector_store.search_with_reranking(
+                query_text=request.query,
+                query_embedding=query_embedding,
+                reranker=reranker,
+                top_k_faiss=request.top_k_faiss,
+                top_n_final=request.top_k,
+                context_window=request.context_window,
+            )
 
-        # Convert results to JSON-serializable format
-        response_results = []
-        for result in results:
-            response_results.append(
-                {
+            # Convert results to JSON-serializable format (with reranking data)
+            response_results = []
+            for result in results:
+                result_dict = {
                     "doc_id": result.doc_id,
                     "filename": result.filename,
                     "paragraph_index": result.paragraph_idx,
@@ -355,16 +368,72 @@ async def search_documents(request: SearchRequest):
                     "similarity_scores": [
                         float(score) for score in result.similarity_scores
                     ],
+                    "reranking_score": (
+                        float(result.reranking_score)
+                        if result.reranking_score is not None
+                        else None
+                    ),
+                }
+
+                # Add context paragraphs if present
+                if result.context_paragraphs_before:
+                    result_dict["context_paragraphs_before"] = (
+                        result.context_paragraphs_before
+                    )
+
+                if result.context_paragraphs_after:
+                    result_dict["context_paragraphs_after"] = (
+                        result.context_paragraphs_after
+                    )
+
+                response_results.append(result_dict)
+
+            return JSONResponse(
+                content={
+                    "query": request.query,
+                    "results": response_results,
+                    "total_results": len(response_results),
+                    "timing": {
+                        "faiss_time": round(timing["faiss_time"], 3),
+                        "reranking_time": round(timing["reranking_time"], 3),
+                        "total_time": round(timing["total_time"], 3),
+                    },
+                    "retrieval_method": "faiss_with_reranking",
                 }
             )
 
-        return JSONResponse(
-            content={
-                "query": request.query,
-                "results": response_results,
-                "total_results": len(response_results),
-            }
-        )
+        else:
+            # FAISS-only retrieval
+            results = vector_store.search(
+                query_embedding=query_embedding,
+                top_k=request.top_k,
+                deduplicate_paragraphs=request.deduplicate_paragraphs,
+            )
+
+            # Convert results to JSON-serializable format
+            response_results = []
+            for result in results:
+                response_results.append(
+                    {
+                        "doc_id": result.doc_id,
+                        "filename": result.filename,
+                        "paragraph_index": result.paragraph_idx,
+                        "paragraph_text": result.paragraph_text,
+                        "matched_sentences": result.matched_sentences,
+                        "similarity_scores": [
+                            float(score) for score in result.similarity_scores
+                        ],
+                    }
+                )
+
+            return JSONResponse(
+                content={
+                    "query": request.query,
+                    "results": response_results,
+                    "total_results": len(response_results),
+                    "retrieval_method": "faiss_only",
+                }
+            )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
