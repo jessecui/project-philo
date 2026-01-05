@@ -1,15 +1,22 @@
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 import os
 import uuid
-from typing import Optional
+import json
+from typing import Optional, AsyncGenerator
 from pydantic import BaseModel
 from app.services.embedding_service import EmbeddingService
 from app.utils.document_processor import DocumentProcessor
 from app.services.vector_store import VectorStore
 from app.services.distributed_ingestion import DistributedIngestionPipeline
 from app.services.reranker_service import CrossEncoderReranker
+from app.services.generation_service import VertexAIGenerator
 import time
 
 app = FastAPI(title="Document Embedding API")
@@ -32,6 +39,15 @@ reranker = CrossEncoderReranker()  # Initialize reranker for 2-stage retrieval
 # Initialize distributed ingestion pipeline (8 workers for M4)
 distributed_pipeline = DistributedIngestionPipeline(num_workers=8, batch_size=32)
 
+# Initialize Vertex AI generator (only if credentials are configured)
+try:
+    generator = VertexAIGenerator()
+except Exception as e:
+    print(f"⚠️  Vertex AI generator not initialized: {e}")
+    print("   RAG generation endpoints will not be available.")
+    print("   Configure .env file to enable generation features.")
+    generator = None
+
 # Create uploads directory if it doesn't exist
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -45,6 +61,16 @@ class SearchRequest(BaseModel):
     use_reranking: bool = False  # Enable 2-stage retrieval with cross-encoder reranking
     top_k_faiss: int = 50  # Number of candidates from FAISS (stage 1)
     context_window: int = 2  # Number of paragraphs before/after for context expansion
+
+
+class GenerateRequest(BaseModel):
+    query: str
+    top_k_context: int = 5  # Number of document excerpts to retrieve
+    use_reranking: bool = True  # Use cross-encoder reranking for better quality
+    top_k_faiss: int = 50  # FAISS candidates (if reranking enabled)
+    context_window: int = 2  # Paragraphs before/after for context
+    temperature: float = 0.7  # Sampling temperature for generation
+    max_output_tokens: int = 2048  # Maximum tokens in generated response
 
 
 @app.get("/")
@@ -511,6 +537,129 @@ async def get_stats():
         stats = vector_store.get_stats()
         return JSONResponse(content=stats)
 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/search-and-generate")
+async def search_and_generate(request: GenerateRequest):
+    """
+    Retrieve relevant document excerpts and generate an answer using Gemini 2.5 Pro.
+
+    This endpoint implements RAG (Retrieval-Augmented Generation):
+    1. Embeds the query
+    2. Retrieves top-k relevant passages with optional reranking
+    3. Streams an AI-generated answer grounded in the retrieved context
+
+    Args:
+        query: User's question
+        top_k_context: Number of document excerpts to retrieve (default: 5)
+        use_reranking: Enable cross-encoder reranking (default: True)
+        top_k_faiss: FAISS candidates for reranking (default: 50)
+        context_window: Paragraphs before/after for context (default: 2)
+        temperature: Generation temperature (default: 0.7)
+        max_output_tokens: Maximum response length (default: 2048)
+
+    Returns:
+        Server-Sent Events stream with:
+        - sources: Initial event with retrieved document excerpts
+        - token: Streaming text chunks from the model
+        - done: Final event with timing information
+    """
+    if generator is None:
+        raise HTTPException(
+            status_code=503,
+            detail="RAG generation not available. Vertex AI is not configured. "
+            "Please set up .env file with GOOGLE_CLOUD_PROJECT and credentials.",
+        )
+
+    try:
+        overall_start = time.time()
+
+        # Step 1: Generate query embedding
+        embed_start = time.time()
+        query_embedding = embedding_service.embed_texts([request.query])[0]
+        embed_time = time.time() - embed_start
+
+        # Step 2: Retrieve relevant passages
+        retrieval_start = time.time()
+        if request.use_reranking:
+            results, timing = vector_store.search_with_reranking(
+                query_text=request.query,
+                query_embedding=query_embedding,
+                reranker=reranker,
+                top_k_faiss=request.top_k_faiss,
+                top_n_final=request.top_k_context,
+                context_window=request.context_window,
+            )
+            retrieval_time = timing["total_time"]
+        else:
+            results = vector_store.search(
+                query_embedding=query_embedding,
+                top_k=request.top_k_context,
+                deduplicate_paragraphs=True,
+            )
+            retrieval_time = time.time() - retrieval_start
+            timing = {"faiss_time": retrieval_time, "reranking_time": 0}
+
+        if not results:
+            raise HTTPException(
+                status_code=404,
+                detail="No relevant documents found. Please index documents first.",
+            )
+
+        # Step 3: Stream generated answer
+        async def event_generator() -> AsyncGenerator[str, None]:
+            """Generate Server-Sent Events for streaming response."""
+            try:
+                # Send initial sources event
+                sources_data = [
+                    {
+                        "filename": r.filename,
+                        "paragraph_idx": r.paragraph_idx,
+                        "text": r.paragraph_text,
+                        "score": (
+                            float(r.reranking_score)
+                            if r.reranking_score is not None
+                            else None
+                        ),
+                    }
+                    for r in results
+                ]
+                yield f"data: {json.dumps({'type': 'sources', 'data': sources_data})}\n\n"
+
+                # Stream answer tokens
+                generation_start = time.time()
+                async for chunk in generator.stream_answer(
+                    query=request.query,
+                    search_results=results,
+                    temperature=request.temperature,
+                    max_output_tokens=request.max_output_tokens,
+                ):
+                    yield f"data: {json.dumps({'type': 'token', 'data': chunk})}\n\n"
+
+                generation_time = time.time() - generation_start
+                total_time = time.time() - overall_start
+
+                # Send completion event with timing
+                timing_data = {
+                    "embedding_time": round(embed_time, 3),
+                    "faiss_time": round(timing["faiss_time"], 3),
+                    "reranking_time": round(timing["reranking_time"], 3),
+                    "retrieval_time": round(retrieval_time, 3),
+                    "generation_time": round(generation_time, 3),
+                    "total_time": round(total_time, 3),
+                }
+                yield f"data: {json.dumps({'type': 'done', 'data': timing_data})}\n\n"
+
+            except Exception as e:
+                error_data = {"message": str(e), "code": "generation_error"}
+                yield f"data: {json.dumps({'type': 'error', 'data': error_data})}\n\n"
+
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

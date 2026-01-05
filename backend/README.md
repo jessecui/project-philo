@@ -11,6 +11,7 @@ A FastAPI service for document processing and semantic search using sentence-lev
 - 📊 Context window expansion for richer results
 - ⚡ Ray distributed processing (3.96x speedup on 10 cores)
 - 🚀 Automatic MPS/CUDA/CPU detection
+- 🤖 **RAG Generation: Gemini 2.5 Pro streaming answers with source citations**
 
 ## Quick Start
 
@@ -54,10 +55,11 @@ curl -X POST "http://localhost:8000/search" \
 |----------|--------|-------------|
 | `/` | GET | Health check |
 | `/index` | POST | Index document (single-threaded) |
-| `/index-distributed` | POST | Index document (Ray distributed, recommended for 1000+ sentences) |
 | `/search` | POST | Semantic search with optional reranking |
+| `/search-and-generate` | POST | RAG: Retrieve + Generate streaming answer |
 | `/documents` | GET | List indexed documents |
 | `/documents/{doc_id}` | DELETE | Remove document |
+| `/stats` | GET | Vector store statistics |cument |
 | `/stats` | GET | Vector store statistics |
 
 **Search Parameters:**
@@ -67,26 +69,133 @@ curl -X POST "http://localhost:8000/search" \
 - `top_k_faiss` (default: 50): FAISS candidates for reranking
 - `context_window` (default: 2): Paragraphs before/after for context
 - `deduplicate_paragraphs` (default: true): One result per paragraph
-
 **Supported Formats:** PDF, TXT, MD, DOCX
 
 ---
 
-## 2-Stage Retrieval Architecture
+## RAG (Retrieval-Augmented Generation)
 
-Production-quality search combining FAISS approximate search with cross-encoder reranking.
+Generate AI-powered answers grounded in your indexed documents using Gemini 2.5 Pro.
 
-### Pipeline
+### Setup
 
+1. **Install dependencies:**
+```bash
+pip install -r requirements.txt  # Includes google-genai
 ```
-Query → FAISS (top-50) → Group by Paragraph → Cross-Encoder Rerank (top-10) → Context Expansion → Results
+
+2. **Configure Google Cloud credentials:**
+```bash
+cp .env.example .env
+# Edit .env with your project details
 ```
 
-**Stage 1 (FAISS):** all-MiniLM-L6-v2 bi-encoder retrieves ~50 candidate sentences (~0.05s)  
-**Stage 2 (Reranker):** BAAI/bge-reranker-v2-m3 cross-encoder reranks to top-10 paragraphs (~0.31s)  
-**Context:** Optionally expand with ±N paragraphs for reading context
+Required environment variables:
+- `GOOGLE_CLOUD_PROJECT` - Your GCP project ID
+- `VERTEX_AI_LOCATION` - Region (e.g., us-central1)
+- `GOOGLE_APPLICATION_CREDENTIALS` - Path to service account key (optional if using ADC)
 
-### Performance Benchmarks
+3. **Enable Vertex AI API:**
+```bash
+gcloud services enable aiplatform.googleapis.com
+```
+
+Or use Application Default Credentials for local development:
+```bash
+gcloud auth application-default login
+```
+
+### Usage
+
+**Streaming Generation (recommended):**
+```bash
+curl -N -X POST "http://localhost:8000/search-and-generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "What is the nature of the Tao?",
+    "top_k_context": 5,
+    "use_reranking": true,
+    "temperature": 0.7
+  }'
+```
+
+**Test Script with Pretty Output:**
+```bash
+# Default query
+python -m app.scripts.test_search_and_generate
+
+# Custom query
+python -m app.scripts.test_search_and_generate "How should one cultivate virtue?"
+
+# With parameters
+python -m app.scripts.test_search_and_generate \
+  "What is self-reliance?" \
+  --top-n-context 3 \
+  --temperature 0.5
+```
+
+**Parameters:**
+- `query` (required): User's question
+- `top_k_context` (default: 5): Number of excerpts to retrieve
+- `use_reranking` (default: true): Use cross-encoder for better quality
+- `temperature` (default: 0.7): Generation randomness (0.0-1.0)
+- `max_output_tokens` (default: 2048): Maximum response length
+
+**Response Format (Server-Sent Events):**
+```json
+// Initial: Retrieved sources
+data: {"type":"sources","data":[{"filename":"Tao_Te_Ching.txt","paragraph_idx":5,"text":"...","score":0.85}]}
+
+// Streaming: Tokens as they're generated
+data: {"type":"token","data":"The "}
+data: {"type":"token","data":"Tao "}
+
+// Final: Timing metrics
+data: {"type":"done","data":{"generation_time":2.34,"total_time":2.52}}
+```
+**Models:**
+- Embeddings: all-MiniLM-L6-v2 (384-dim, bi-encoder)
+- Reranker: BAAI/bge-reranker-v2-m3 (cross-encoder)
+- Generation: Gemini 2.5 Pro (1M token context, streaming)
+- **Model:** Gemini 2.5 Pro
+- **Context Window:** 1M tokens
+- **Features:** Adaptive thinking, grounded generation, source citations
+- **Pricing:** ~$1.25/1M input tokens, ~$5.00/1M output tokens (~$0.003-0.005 per query)
+
+### Troubleshooting
+
+**"Vertex AI generator not initialized"**
+- Check `.env` file exists and has correct values
+- Verify `GOOGLE_CLOUD_PROJECT` is set
+- Ensure Vertex AI API is enabled: `gcloud services list --enabled | grep aiplatform`
+- Try: `gcloud auth application-default login`
+
+**Permission denied errors**
+- Service account needs `Vertex AI User` role (`roles/aiplatform.user`)
+
+---
+---
+
+backend/
+├── app/
+│   ├── main.py                        # FastAPI endpoints
+│   ├── services/
+│   │   ├── embedding_service.py       # Sentence embeddings
+│   │   ├── reranker_service.py        # Cross-encoder reranking
+│   │   ├── vector_store.py            # FAISS vector store
+│   │   ├── generation_service.py      # Gemini 2.5 Pro generation
+│   │   └── distributed_ingestion.py   # Ray parallel processing
+│   ├── utils/
+│   │   └── document_processor.py      # Text extraction & splitting
+│   ├── scripts/
+│   │   ├── test_search.py                    # Test retrieval pipeline
+│   │   └── test_search_and_generate.py       # Test RAG pipeline
+│   └── evaluation/
+│       ├── eval_faiss_cross_encoder_ndcg.py  # Retrieval quality tests
+│       └── eval_ray_ingestion_latency.py     # Performance benchmarks
+├── data/                               # FAISS index & metadata
+├── .env.example                        # Environment variable template
+└── requirements.txthmarks
 
 Tested on 50 philosophical queries with 100 paragraphs (50 utilitarianism variants + 50 other ethical theories):
 
