@@ -216,8 +216,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max-tokens",
         type=int,
-        default=2048,
-        help="Maximum output tokens (default: 2048)",
+        default=8192,
+        help="Maximum output tokens (default: 8192)",
     )
 
     args = parser.parse_args()

@@ -9,7 +9,7 @@ import os
 import time
 from typing import List, AsyncGenerator, Dict, Any
 from google import genai
-from google.genai.types import GenerateContentConfig, HttpOptions
+from google.genai.types import GenerateContentConfig, HttpOptions, ThinkingConfig
 from app.services.vector_store import SearchResult
 
 
@@ -20,7 +20,7 @@ class VertexAIGenerator:
         self,
         model_name: str = "gemini-2.5-pro",
         temperature: float = 0.7,
-        max_output_tokens: int = 2048,
+        max_output_tokens: int = 8192,
     ):
         """
         Initialize the Vertex AI generator.
@@ -114,25 +114,29 @@ class VertexAIGenerator:
         Returns:
             System instruction string
         """
-        return """You are a knowledgeable philosophy assistant helping users understand philosophical texts.
+        return """You are a friendly, philosophically-inclined assistant and coach who helps people explore wisdom from great philosophical texts.
 
-Your task is to answer questions based ONLY on the provided document excerpts. Follow these guidelines:
+Your task is to answer the user's question in a warm, conversational essay format while grounding your response in the provided philosophical sources.
 
-1. **Ground your answer in the texts**: Only use information from the provided excerpts. Do not add external knowledge or speculation.
+Guidelines:
 
-2. **Cite your sources**: When referencing information, cite the excerpt number in brackets, e.g., [1], [2], etc.
+1. **Write like a thoughtful essay**: Structure your response with a clear flow of ideas, not as a list or bullet points. Open with a direct answer to their question, then elaborate with supporting evidence.
 
-3. **Be comprehensive**: If multiple excerpts discuss the question, synthesize them into a coherent answer.
+2. **Cite authors and works naturally**: Reference the philosophers and their works by name (e.g., "Emerson says in Self-Reliance...", "Marcus Aurelius writes in Meditations..."). Make it conversational, not academic.
 
-4. **Maintain philosophical tone**: Write clearly but preserve the philosophical depth of the source material.
+3. **Use the document names as work titles**: The filename (like "Self_Reliance.txt") tells you the work title. Use this to cite properly.
 
-5. **Acknowledge limitations**: If the excerpts don't fully answer the question, acknowledge what's missing.
+4. **Quote meaningfully**: When using direct quotes, integrate them smoothly into your prose with quotation marks and author attribution.
 
-6. **Direct quotes**: When using direct quotes, use quotation marks and cite the source excerpt.
+5. **Synthesize and connect**: If multiple philosophers address the question, show how their ideas relate or complement each other. Draw out the larger philosophical themes.
 
-7. **No hallucination**: Never invent quotes, ideas, or information not present in the excerpts.
+6. **Stay grounded**: Only use information from the provided excerpts. If the sources don't fully answer the question, acknowledge this honestly.
 
-Format your response in clear paragraphs with proper citations."""
+7. **Be encouraging**: Remember you're a coach - help the user see how these philosophical insights apply to their question.
+
+Example style: "Yes, based on these philosophical sources, you absolutely should trust yourself. Emerson makes this case powerfully in Self-Reliance when he writes... Marcus Aurelius echoes this sentiment in Meditations by... In general, these philosophers share a common thread that..."
+
+Write in clear, flowing paragraphs that feel like a friendly conversation with someone wise."""
 
     async def stream_answer(
         self,
@@ -156,11 +160,13 @@ Format your response in clear paragraphs with proper citations."""
         # Format the context from search results
         context = self._format_context(search_results)
 
-        # Create the full prompt
+        # Create the system prompt and user prompt
+        system_prompt = self._create_system_prompt()
         user_prompt = f"{context}\n\n=== Question ===\n{query}\n\n=== Answer ===\n"
 
         # Configure generation
         config = GenerateContentConfig(
+            system_instruction=system_prompt,
             temperature=temperature if temperature is not None else self.temperature,
             max_output_tokens=(
                 max_output_tokens
@@ -169,21 +175,41 @@ Format your response in clear paragraphs with proper citations."""
             ),
             top_p=0.95,
             top_k=40,
+            thinking_config=ThinkingConfig(
+                thinking_budget=128  # Minimum thinking for 2.5 Pro (cannot disable)
+            ),
         )
 
         # Generate streaming response
         try:
+            chunk_count = 0
             for chunk in self.client.models.generate_content_stream(
                 model=self.model_name,
                 contents=user_prompt,
                 config=config,
             ):
+                chunk_count += 1
                 if chunk.text:
-                    yield chunk.text
+                    # Stream character by character for smoother visual effect
+                    for char in chunk.text:
+                        yield char
+
+                # Debug: Check if stream ended prematurely
+                if hasattr(chunk, "candidates") and chunk.candidates:
+                    finish_reason = getattr(chunk.candidates[0], "finish_reason", None)
+                    if (
+                        finish_reason and finish_reason != 0
+                    ):  # 0 = FINISH_REASON_UNSPECIFIED
+                        print(
+                            f"\n\n[DEBUG] Stream ended with finish_reason: {finish_reason}"
+                        )
 
         except Exception as e:
             error_msg = f"Error generating response: {str(e)}"
             print(f"❌ {error_msg}")
+            import traceback
+
+            traceback.print_exc()
             raise Exception(error_msg)
 
     def generate_answer(
@@ -208,11 +234,13 @@ Format your response in clear paragraphs with proper citations."""
         # Format the context from search results
         context = self._format_context(search_results)
 
-        # Create the full prompt
+        # Create the system prompt and user prompt
+        system_prompt = self._create_system_prompt()
         user_prompt = f"{context}\n\n=== Question ===\n{query}\n\n=== Answer ===\n"
 
         # Configure generation
         config = GenerateContentConfig(
+            system_instruction=system_prompt,
             temperature=temperature if temperature is not None else self.temperature,
             max_output_tokens=(
                 max_output_tokens
@@ -221,6 +249,9 @@ Format your response in clear paragraphs with proper citations."""
             ),
             top_p=0.95,
             top_k=40,
+            thinking_config=ThinkingConfig(
+                thinking_budget=128  # Minimum thinking for 2.5 Pro (cannot disable)
+            ),
         )
 
         # Generate response
