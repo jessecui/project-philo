@@ -552,17 +552,17 @@ async def get_stats():
 async def generate_from_results(request: GenerateFromResultsRequest):
     """
     Generate an answer from pre-fetched search results.
-    
+
     This endpoint enables a two-step RAG workflow:
     1. User calls /search to get and review results
     2. User clicks a button to generate an answer from those results
-    
+
     Args:
         query: User's question
         results: List of search results from /search endpoint
         temperature: Generation temperature (default: 0.7)
         max_output_tokens: Maximum response length (default: 8192)
-    
+
     Returns:
         Server-Sent Events stream with:
         - sources: Initial event with the provided search results
@@ -575,19 +575,19 @@ async def generate_from_results(request: GenerateFromResultsRequest):
             detail="RAG generation not available. Vertex AI is not configured. "
             "Please set up .env file with GOOGLE_CLOUD_PROJECT and credentials.",
         )
-    
+
     try:
         if not request.results:
             raise HTTPException(
                 status_code=400,
                 detail="No search results provided. Please provide results from /search endpoint.",
             )
-        
+
         overall_start = time.time()
-        
+
         # Convert the JSON results back to SearchResult objects
         from app.services.vector_store import SearchResult
-        
+
         search_results = []
         for r in request.results:
             result = SearchResult(
@@ -602,7 +602,7 @@ async def generate_from_results(request: GenerateFromResultsRequest):
                 context_paragraphs_after=r.get("context_paragraphs_after"),
             )
             search_results.append(result)
-        
+
         # Stream generated answer
         async def event_generator() -> AsyncGenerator[str, None]:
             """Generate Server-Sent Events for streaming response."""
@@ -622,7 +622,7 @@ async def generate_from_results(request: GenerateFromResultsRequest):
                     for r in search_results
                 ]
                 yield f"data: {json.dumps({'type': 'sources', 'data': sources_data})}\n\n"
-                
+
                 # Stream answer tokens
                 generation_start = time.time()
                 async for chunk in generator.stream_answer(
@@ -632,23 +632,23 @@ async def generate_from_results(request: GenerateFromResultsRequest):
                     max_output_tokens=request.max_output_tokens,
                 ):
                     yield f"data: {json.dumps({'type': 'token', 'data': chunk})}\n\n"
-                
+
                 generation_time = time.time() - generation_start
                 total_time = time.time() - overall_start
-                
+
                 # Send completion event with timing
                 timing_data = {
                     "generation_time": round(generation_time, 3),
                     "total_time": round(total_time, 3),
                 }
                 yield f"data: {json.dumps({'type': 'done', 'data': timing_data})}\n\n"
-            
+
             except Exception as e:
                 error_data = {"message": str(e), "code": "generation_error"}
                 yield f"data: {json.dumps({'type': 'error', 'data': error_data})}\n\n"
-        
+
         return StreamingResponse(event_generator(), media_type="text/event-stream")
-    
+
     except HTTPException:
         raise
     except Exception as e:
