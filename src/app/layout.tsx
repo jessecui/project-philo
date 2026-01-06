@@ -1,6 +1,4 @@
-import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import "@mantine/core/styles.css";
-import "@mantine/dates/styles.css";
+import "./globals.css";
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 
@@ -21,20 +19,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        <ColorSchemeScript defaultColorScheme="dark" />
-      </head>
-      <body>
-        <MantineProvider
-          theme={{
-            fontFamily: outfit.style.fontFamily,
-            headings: { fontWeight: "500" },
-          }}
-          defaultColorScheme="dark"          
-        >
-          {children}
-        </MantineProvider>
+    <html lang="en" className="dark">
+      <body className={outfit.className}>
+        {children}
       </body>
     </html>
   );
