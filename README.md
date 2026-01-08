@@ -126,8 +126,8 @@ NEXT_PUBLIC_SITE_DOMAIN=http://localhost:3000
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/notesearch.git
-   cd notesearch
+   git clone https://github.com/yourusername/project-philo.git
+   cd project-philo
    ```
 
 2. Install dependencies:

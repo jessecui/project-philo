@@ -5,9 +5,9 @@ import { Outfit } from "next/font/google";
 const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "NoteSearch | Semantic Search on Text Notes",
+  title: "Project Philo | Query with AI on Philosophy Texts",
   description:
-    "NoteSearch helps you find your notes in a faster and smarter way.",
+    "Project Philo answers your questions by citing philosophy texts with AI.",
   icons: {
     icon: "/favicon.ico",
   },
