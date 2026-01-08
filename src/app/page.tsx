@@ -166,7 +166,7 @@ export default function HomePage() {
               {[
                 "What is self-reliance?",
                 "How should I live according to the Tao?",
-                "What does Epictetus say about control?",
+                "How do we accept what's not in our control?",
               ].map((question) => (
                 <button
                   key={question}
