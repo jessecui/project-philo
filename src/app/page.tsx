@@ -213,7 +213,7 @@ export default function HomePage() {
                     >
                       <div className="flex justify-between items-start">
                         <div className="font-medium text-blue-400">
-                          {source.filename}
+                          {source.filename.replace(/\.[^/.]+$/, '').replace(/_/g, ' ')}
                         </div>
                         {source.score !== null && (
                           <div className="text-xs text-slate-500">
