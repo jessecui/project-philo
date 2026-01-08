@@ -96,7 +96,7 @@ export default function HomePage() {
         <div className="text-center space-y-4">
           <h1 className="text-5xl font-bold text-white">Project Philo</h1>
           <p className="text-slate-400 text-lg">
-            Semantic search powered by RAG with FAISS + Cross-Encoder
+            Semantic search on philosophical texts powered by RAG with FAISS + Cross-Encoder
           </p>
         </div>
 
@@ -107,7 +107,7 @@ export default function HomePage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask a question about your philosophical texts..."
+              placeholder="Ask a question regarding philosophy..."
               className={cn(
                 "flex-1 px-4 py-3 bg-slate-900 border border-slate-700",
                 "rounded-lg text-white placeholder-slate-500",
