@@ -1,6 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  serverExternalPackages: ['sharp', 'onnxruntime-node'],
-};
+const nextConfig = {};
 
 module.exports = nextConfig
