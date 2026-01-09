@@ -18,6 +18,48 @@ export default function HomePage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [error, setError] = useState("");
 
+  const formatAnswer = (text: string) => {
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    
+    // Match **bold** and *italic* patterns
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+
+      const matchedText = match[0];
+      if (matchedText.startsWith('**') && matchedText.endsWith('**')) {
+        // Bold text
+        parts.push(
+          <strong key={match.index}>
+            {matchedText.slice(2, -2)}
+          </strong>
+        );
+      } else if (matchedText.startsWith('*') && matchedText.endsWith('*')) {
+        // Italic text
+        parts.push(
+          <em key={match.index}>
+            {matchedText.slice(1, -1)}
+          </em>
+        );
+      }
+
+      lastIndex = regex.lastIndex;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+
+    return parts;
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -96,7 +138,7 @@ export default function HomePage() {
         <div className="text-center space-y-4">
           <h1 className="text-5xl font-bold text-white">Project Philo</h1>
           <p className="text-slate-400 text-lg">
-            Semantic search on philosophical texts powered by RAG with FAISS + Cross-Encoder
+            Your AI philosophy assistant, powered by semantic search and intelligent reranking.
           </p>
         </div>
 
@@ -195,7 +237,7 @@ export default function HomePage() {
               <div 
                 className="text-slate-300 leading-relaxed whitespace-pre-line"
               >
-                {answer}
+                {formatAnswer(answer)}
               </div>
             </div>
 
