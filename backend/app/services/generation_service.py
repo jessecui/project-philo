@@ -190,9 +190,7 @@ Write in clear, flowing paragraphs that feel like a friendly conversation with s
             ):
                 chunk_count += 1
                 if chunk.text:
-                    # Stream character by character for smoother visual effect
-                    for char in chunk.text:
-                        yield char
+                    yield chunk.text
 
                 # Debug: Check if stream ended prematurely
                 if hasattr(chunk, "candidates") and chunk.candidates:
