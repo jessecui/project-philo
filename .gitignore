@@ -41,6 +41,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyc
 .Python
 venv/
 env/
@@ -52,6 +53,11 @@ build/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# backend specific
+backend/uploads/
+backend/data/faiss.index
+backend/data/metadata.json
 
 # vscode
 .vscode
