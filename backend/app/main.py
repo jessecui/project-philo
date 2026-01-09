@@ -90,6 +90,32 @@ async def health():
     return {"status": "healthy"}
 
 
+class ValidateCreatorRequest(BaseModel):
+    answer: str
+
+
+@app.post("/validate-creator")
+async def validate_creator(request: ValidateCreatorRequest):
+    """
+    Validate the creator's name against the stored environment variable.
+
+    Args:
+        answer: The user's answer to the creator question
+
+    Returns:
+        {"valid": true/false}
+    """
+    creator_name = os.getenv("CREATOR_NAME", "").strip().replace(" ", "").lower()
+    user_answer = request.answer.strip().replace(" ", "").lower()
+
+    if not creator_name:
+        raise HTTPException(
+            status_code=500, detail="CREATOR_NAME environment variable not configured"
+        )
+
+    return {"valid": user_answer == creator_name}
+
+
 @app.post("/embed")
 async def embed_document(file: UploadFile = File(...)):
     """
