@@ -62,15 +62,25 @@ gcloud auth application-default login
 gcloud services enable aiplatform.googleapis.com
 ```
 
-### 3. Run the Application
+### 3. Index the Texts
+
+Index the philosophical texts in `backend/texts/` to create the FAISS vector store:
 
 ```bash
-# Terminal 1: Start backend
-cd backend
+# From backend/ directory
+python -m app.scripts.index_texts
+```
+
+This will generate `backend/data/faiss.index` and `backend/data/metadata.json`.
+
+### 4. Run the Application
+
+```bash
+# Terminal 1: Start backend (from backend/)
 uvicorn app.main:app --reload
 # API at http://localhost:8000, docs at http://localhost:8000/docs
 
-# Terminal 2: Start frontend
+# Terminal 2: Start frontend (from project root)
 npm run dev
 # App at http://localhost:3000
 ```
@@ -240,6 +250,7 @@ project-philo/
 │   │   ├── utils/
 │   │   │   └── document_processor.py   # Text extraction & splitting
 │   │   ├── scripts/
+│   │   │   ├── index_texts.py          # Build FAISS index from texts/
 │   │   │   ├── test_search.py          # Test retrieval pipeline
 │   │   │   └── test_search_and_generate.py # Test RAG pipeline
 │   │   └── evaluation/
