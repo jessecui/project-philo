@@ -72,7 +72,7 @@ class GenerateRequest(BaseModel):
     top_k_context: int = 5  # Number of document excerpts to retrieve
     use_reranking: bool = True  # Use cross-encoder reranking for better quality
     top_k_faiss: int = 50  # FAISS candidates (if reranking enabled)
-    context_window: int = 2  # Paragraphs before/after for context
+    context_window: int = 0  # Paragraphs before/after (0 = main paragraph only)
     temperature: float = 0.7  # Sampling temperature for generation
     max_output_tokens: int = 8192  # Maximum tokens in generated response
 
