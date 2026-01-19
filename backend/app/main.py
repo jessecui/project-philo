@@ -36,8 +36,12 @@ document_processor = DocumentProcessor()
 vector_store = VectorStore()
 reranker = CrossEncoderReranker()  # Initialize reranker for 2-stage retrieval
 
-# Initialize distributed ingestion pipeline (8 workers for M4)
-distributed_pipeline = DistributedIngestionPipeline(num_workers=8, batch_size=32)
+# Initialize distributed ingestion pipeline only if ENABLE_RAY is set
+if os.getenv("ENABLE_RAY", "false").lower() == "true":
+    distributed_pipeline = DistributedIngestionPipeline(num_workers=8, batch_size=32)
+else:
+    print("ℹ️  Ray distributed processing disabled. Set ENABLE_RAY=true to enable.")
+    distributed_pipeline = None
 
 # Initialize Gemini generator (only if API key is configured)
 try:
@@ -289,6 +293,13 @@ async def index_document_distributed(file: UploadFile = File(...)):
         - throughput: Sentences per second
         - workers: Number of Ray workers used
     """
+    # Check if Ray is enabled
+    if distributed_pipeline is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Distributed processing not available. Set ENABLE_RAY=true to enable.",
+        )
+
     # Validate file type
     allowed_extensions = {".pdf", ".txt", ".md", ".docx"}
     file_ext = os.path.splitext(file.filename)[1].lower()
