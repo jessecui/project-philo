@@ -7,6 +7,7 @@ based on document excerpts retrieved from the RAG pipeline.
 
 import os
 import time
+import asyncio
 from typing import List, AsyncGenerator, Dict, Any
 from google import genai
 from google.genai.types import GenerateContentConfig, ThinkingConfig
@@ -166,26 +167,55 @@ Write in clear, flowing paragraphs that feel like a friendly conversation with s
         )
 
         # Generate streaming response
+        # Run sync generator in thread pool to avoid blocking event loop
         try:
-            chunk_count = 0
-            for chunk in self.client.models.generate_content_stream(
-                model=self.model_name,
-                contents=user_prompt,
-                config=config,
-            ):
-                chunk_count += 1
-                if chunk.text:
-                    yield chunk.text
+            loop = asyncio.get_event_loop()
 
-                # Debug: Check if stream ended prematurely
-                if hasattr(chunk, "candidates") and chunk.candidates:
-                    finish_reason = getattr(chunk.candidates[0], "finish_reason", None)
-                    if (
-                        finish_reason and finish_reason != 0
-                    ):  # 0 = FINISH_REASON_UNSPECIFIED
-                        print(
-                            f"\n\n[DEBUG] Stream ended with finish_reason: {finish_reason}"
-                        )
+            def sync_stream():
+                """Synchronous generator that yields chunks."""
+                for chunk in self.client.models.generate_content_stream(
+                    model=self.model_name,
+                    contents=user_prompt,
+                    config=config,
+                ):
+                    if chunk.text:
+                        yield chunk.text
+
+            # Use a queue to pass chunks from thread to async generator
+            import queue
+            import threading
+
+            chunk_queue = queue.Queue()
+            error_holder = [None]
+
+            def run_sync_stream():
+                try:
+                    for chunk in sync_stream():
+                        chunk_queue.put(chunk)
+                    chunk_queue.put(None)  # Signal completion
+                except Exception as e:
+                    error_holder[0] = e
+                    chunk_queue.put(None)
+
+            # Start sync stream in background thread
+            thread = threading.Thread(target=run_sync_stream)
+            thread.start()
+
+            # Yield chunks as they arrive
+            while True:
+                # Use asyncio-friendly polling
+                while chunk_queue.empty():
+                    await asyncio.sleep(0.01)
+
+                chunk = chunk_queue.get()
+                if chunk is None:
+                    break
+                yield chunk
+
+            thread.join()
+
+            if error_holder[0]:
+                raise error_holder[0]
 
         except Exception as e:
             error_msg = f"Error generating response: {str(e)}"
