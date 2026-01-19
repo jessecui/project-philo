@@ -1,7 +1,7 @@
 """
-Vertex AI Gemini service for generating answers from retrieved context.
+Google AI Gemini service for generating answers from retrieved context.
 
-This service uses Google's Gemini 2.5 Pro model to generate grounded answers
+This service uses Google's Gemini 3 Flash model to generate grounded answers
 based on document excerpts retrieved from the RAG pipeline.
 """
 
@@ -9,63 +9,48 @@ import os
 import time
 from typing import List, AsyncGenerator, Dict, Any
 from google import genai
-from google.genai.types import GenerateContentConfig, HttpOptions, ThinkingConfig
+from google.genai.types import GenerateContentConfig, ThinkingConfig
 from app.services.vector_store import SearchResult
 
 
-class VertexAIGenerator:
-    """Generate answers using Vertex AI Gemini 2.5 Pro with streaming."""
+class GeminiGenerator:
+    """Generate answers using Google AI Gemini 3 Flash with streaming."""
 
     def __init__(
         self,
-        model_name: str = "gemini-2.5-pro",
-        temperature: float = 0.7,
+        model_name: str = "gemini-3-flash-preview",
+        temperature: float = 1.0,
         max_output_tokens: int = 8192,
     ):
         """
-        Initialize the Vertex AI generator.
+        Initialize the Gemini generator.
 
         Args:
-            model_name: Gemini model to use (default: gemini-2.5-pro)
-            temperature: Sampling temperature (default: 0.7)
+            model_name: Gemini model to use (default: gemini-3-flash-preview)
+            temperature: Sampling temperature (default: 1.0)
             max_output_tokens: Maximum tokens in response (default: 2048)
         """
-        # Load configuration from environment
-        project = os.getenv("GOOGLE_CLOUD_PROJECT")
-        location = os.getenv("VERTEX_AI_LOCATION", "us-central1")
-        credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        # Load API key from environment
+        api_key = os.getenv("GOOGLE_API_KEY")
 
-        if not project:
+        if not api_key:
             raise ValueError(
-                "GOOGLE_CLOUD_PROJECT environment variable must be set. "
-                "See .env.example for configuration details."
+                "GOOGLE_API_KEY environment variable must be set. "
+                "Get your API key from https://aistudio.google.com/apikey"
             )
 
-        if credentials_path and not os.path.exists(credentials_path):
-            raise ValueError(
-                f"Service account key file not found: {credentials_path}. "
-                "Check GOOGLE_APPLICATION_CREDENTIALS path."
-            )
-
-        # Initialize Vertex AI
-        print(f"🔧 Initializing Vertex AI...")
-        print(f"   Project: {project}")
-        print(f"   Location: {location}")
+        # Initialize Google AI client
+        print(f"🔧 Initializing Google AI...")
         print(f"   Model: {model_name}")
 
-        # Create client with Vertex AI configuration
-        self.client = genai.Client(
-            vertexai=True,
-            project=project,
-            location=location,
-            http_options=HttpOptions(api_version="v1"),
-        )
+        # Create client with API key
+        self.client = genai.Client(api_key=api_key)
 
         self.model_name = model_name
         self.temperature = temperature
         self.max_output_tokens = max_output_tokens
 
-        print(f"✓ Vertex AI initialized successfully")
+        print(f"✓ Google AI initialized successfully")
 
     def _format_context(self, search_results: List[SearchResult]) -> str:
         """
@@ -176,7 +161,7 @@ Write in clear, flowing paragraphs that feel like a friendly conversation with s
             top_p=0.95,
             top_k=40,
             thinking_config=ThinkingConfig(
-                thinking_budget=128  # Minimum thinking for 2.5 Pro (cannot disable)
+                thinking_level="low"  # Low thinking for fast RAG responses
             ),
         )
 

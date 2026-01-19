@@ -4,7 +4,7 @@ Test script for RAG (Retrieval-Augmented Generation) pipeline.
 This script demonstrates the full RAG workflow:
 1. FAISS vector similarity search (fast candidate retrieval)
 2. Cross-encoder reranking (precise relevance scoring)
-3. Gemini 2.5 Pro generation (grounded answer with citations)
+3. Gemini 3 Flash generation (grounded answer with citations)
 """
 
 import sys

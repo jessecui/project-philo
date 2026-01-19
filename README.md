@@ -6,7 +6,7 @@ A semantic search and RAG (Retrieval-Augmented Generation) platform for philosop
 
 - 🔍 **Semantic Search**: Sentence embeddings with all-MiniLM-L6-v2 (384-dim)
 - 🎯 **2-Stage Retrieval**: FAISS + cross-encoder reranking (94% vs 62% accuracy, +32pp improvement)
-- 🤖 **RAG Generation**: Gemini 2.5 Pro streaming answers with source citations
+- 🤖 **RAG Generation**: Gemini 3 Flash streaming answers with source citations
 - 📄 **Multi-format Support**: PDF, TXT, MD, DOCX
 - ⚡ **Ray Distributed Processing**: 3.96x speedup on 10 cores
 - 🚀 **Automatic Device Detection**: MPS/CUDA/CPU
@@ -19,7 +19,7 @@ A semantic search and RAG (Retrieval-Augmented Generation) platform for philosop
 - **AI/ML**:
   - Embeddings: all-MiniLM-L6-v2 (384-dim, bi-encoder)
   - Reranker: BAAI/bge-reranker-v2-m3 (cross-encoder)
-  - Generation: Gemini 2.5 Pro (1M token context, streaming)
+  - Generation: Gemini 3 Flash (1M token context, streaming)
 - **Distributed Processing**: Ray
 
 ---
@@ -245,7 +245,7 @@ project-philo/
 │   │   │   ├── embedding_service.py    # Sentence embeddings
 │   │   │   ├── reranker_service.py     # Cross-encoder reranking
 │   │   │   ├── vector_store.py         # FAISS vector store
-│   │   │   ├── generation_service.py   # Gemini 2.5 Pro generation
+│   │   │   ├── generation_service.py   # Gemini 3 Flash generation
 │   │   │   └── distributed_ingestion.py # Ray parallel processing
 │   │   ├── utils/
 │   │   │   └── document_processor.py   # Text extraction & splitting
@@ -281,7 +281,7 @@ project-philo/
 - Paragraph detection: double newlines (`\n\n`)
 - Automatic filtering of empty content
 
-**Pricing (Gemini 2.5 Pro):**
+**Pricing (Gemini 3 Flash):**
 - ~$1.25/1M input tokens, ~$5.00/1M output tokens
 - ~$0.003-0.005 per query
 

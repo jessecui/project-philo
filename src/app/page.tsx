@@ -208,7 +208,7 @@ export default function HomePage() {
               </div>
               <div>•</div>
               <div>
-                <span className="font-semibold text-white">Gemini 2.5</span>{" "}
+                <span className="font-semibold text-white">Gemini 3 Flash</span>{" "}
                 Generation
               </div>
             </div>

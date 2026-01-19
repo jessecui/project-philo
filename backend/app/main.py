@@ -16,7 +16,7 @@ from app.utils.document_processor import DocumentProcessor
 from app.services.vector_store import VectorStore
 from app.services.distributed_ingestion import DistributedIngestionPipeline
 from app.services.reranker_service import CrossEncoderReranker
-from app.services.generation_service import VertexAIGenerator
+from app.services.generation_service import GeminiGenerator
 import time
 
 app = FastAPI(title="Document Embedding API")
@@ -39,13 +39,13 @@ reranker = CrossEncoderReranker()  # Initialize reranker for 2-stage retrieval
 # Initialize distributed ingestion pipeline (8 workers for M4)
 distributed_pipeline = DistributedIngestionPipeline(num_workers=8, batch_size=32)
 
-# Initialize Vertex AI generator (only if credentials are configured)
+# Initialize Gemini generator (only if API key is configured)
 try:
-    generator = VertexAIGenerator()
+    generator = GeminiGenerator()
 except Exception as e:
-    print(f"⚠️  Vertex AI generator not initialized: {e}")
+    print(f"⚠️  Gemini generator not initialized: {e}")
     print("   RAG generation endpoints will not be available.")
-    print("   Configure .env file to enable generation features.")
+    print("   Set GOOGLE_API_KEY in .env to enable generation features.")
     generator = None
 
 # Create uploads directory if it doesn't exist
@@ -684,7 +684,7 @@ async def generate_from_results(request: GenerateFromResultsRequest):
 @app.post("/search-and-generate")
 async def search_and_generate(request: GenerateRequest):
     """
-    Retrieve relevant document excerpts and generate an answer using Gemini 2.5 Pro.
+    Retrieve relevant document excerpts and generate an answer using Gemini 3 Flash.
 
     This endpoint implements RAG (Retrieval-Augmented Generation):
     1. Embeds the query
