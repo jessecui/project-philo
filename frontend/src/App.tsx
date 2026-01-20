@@ -1,5 +1,3 @@
-"use client";
-
 import Cookies from "js-cookie";
 import { Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -14,7 +12,7 @@ interface Source {
   score: number | null;
 }
 
-export default function HomePage() {
+export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +21,6 @@ export default function HomePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Check if user is already authenticated
     const authCookie = Cookies.get("creator_auth");
     if (authCookie === "true") {
       setIsAuthenticated(true);
@@ -35,34 +32,65 @@ export default function HomePage() {
   };
 
   const formatAnswer = (text: string) => {
+    // Split into paragraphs (double newlines)
+    const paragraphs = text.split(/\n\n+/);
+
+    return paragraphs.map((paragraph, pIdx) => {
+      // Check if paragraph is a list (starts with - or * or number.)
+      const lines = paragraph.split(/\n/);
+      const isList = lines.every(
+        (line) => /^[-*•]\s/.test(line.trim()) || /^\d+[.)]\s/.test(line.trim()) || line.trim() === ""
+      );
+
+      if (isList && lines.some((l) => l.trim())) {
+        const listItems = lines.filter((line) => line.trim());
+        return (
+          <ul key={pIdx} className="list-disc list-inside space-y-2 my-4 marker:text-slate-400">
+            {listItems.map((item, idx) => (
+              <li key={idx} className="text-slate-300 leading-relaxed">
+                {formatInlineText(item.replace(/^[-*•]\s*/, "").replace(/^\d+[.)]\s*/, ""))}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+
+      // Regular paragraph
+      return (
+        <p key={pIdx} className={pIdx > 0 ? "mt-4" : ""}>
+          {formatInlineText(paragraph)}
+        </p>
+      );
+    });
+  };
+
+  const formatInlineText = (text: string) => {
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
 
-    // Match **bold** and *italic* patterns
+    // Match **bold** and *italic* (but not ** or * alone)
     const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
     let match;
 
     while ((match = regex.exec(text)) !== null) {
-      // Add text before the match
       if (match.index > lastIndex) {
         parts.push(text.substring(lastIndex, match.index));
       }
 
       const matchedText = match[0];
       if (matchedText.startsWith("**") && matchedText.endsWith("**")) {
-        // Bold text
         parts.push(
-          <strong key={match.index}>{matchedText.slice(2, -2)}</strong>,
+          <strong key={match.index} className="font-semibold text-white">
+            {matchedText.slice(2, -2)}
+          </strong>,
         );
       } else if (matchedText.startsWith("*") && matchedText.endsWith("*")) {
-        // Italic text
         parts.push(<em key={match.index}>{matchedText.slice(1, -1)}</em>);
       }
 
       lastIndex = regex.lastIndex;
     }
 
-    // Add remaining text
     if (lastIndex < text.length) {
       parts.push(text.substring(lastIndex));
     }
@@ -80,7 +108,7 @@ export default function HomePage() {
     setError("");
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
       const response = await fetch(`${apiUrl}/search-and-generate`, {
         method: "POST",
         headers: {
@@ -145,19 +173,19 @@ export default function HomePage() {
   return (
     <>
       {!isAuthenticated && <AuthModal onAuthenticated={handleAuthenticated} />}
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 p-4">
+      <div className="min-h-screen bg-linear-to-b from-[#010816] via-slate-950 to-slate-900 p-4">
         <div className="max-w-4xl mx-auto space-y-8 py-12">
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-5xl font-bold text-white">Project Philo</h1>
-            <p className="text-slate-400 text-lg">
+            <p className="text-slate-400/80 text-lg">
               Your AI philosophy assistant, powered by semantic search and
               intelligent reranking.
             </p>
           </div>
 
           {/* Search Box */}
-          <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-8 space-y-6">
+          <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-8 space-y-6">
             <form onSubmit={handleSearch} className="flex gap-3">
               <input
                 type="text"
@@ -165,7 +193,7 @@ export default function HomePage() {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Ask a question regarding philosophy..."
                 className={cn(
-                  "flex-1 px-4 py-3 bg-slate-900 border border-slate-700",
+                  "flex-1 px-4 py-3 bg-slate-950 border border-slate-700",
                   "rounded-lg text-white placeholder-slate-500",
                   "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
                   "transition-all",
@@ -196,19 +224,19 @@ export default function HomePage() {
             </form>
 
             {/* Quick Stats */}
-            <div className="flex gap-6 text-sm text-slate-400 justify-center pt-4 border-t border-slate-700">
+            <div className="flex gap-6 text-sm text-slate-400 justify-center pt-4 border-t border-slate-800">
               <div>
-                <span className="font-semibold text-white">FAISS</span> Vector
+                <span className="font-semibold text-slate-300">FAISS</span> Vector
                 Search
               </div>
               <div>•</div>
               <div>
-                <span className="font-semibold text-white">Cross-Encoder</span>{" "}
+                <span className="font-semibold text-slate-300">Cross-Encoder</span>{" "}
                 Reranking
               </div>
               <div>•</div>
               <div>
-                <span className="font-semibold text-white">Gemini 3 Flash</span>{" "}
+                <span className="font-semibold text-slate-300">Gemini 3 Flash</span>{" "}
                 Generation
               </div>
             </div>
@@ -217,7 +245,7 @@ export default function HomePage() {
           {/* Example Questions */}
           {!answer && !isLoading && (
             <div className="space-y-3">
-              <p className="text-slate-500 text-sm text-center">Try asking:</p>
+              <p className="text-slate-400 text-sm text-center">Try asking:</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {[
                   "What is self-reliance?",
@@ -227,7 +255,7 @@ export default function HomePage() {
                   <button
                     key={question}
                     onClick={() => handleExampleClick(question)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full text-sm text-slate-300 transition-colors"
+                    className="px-4 py-2 bg-slate-900/80 hover:bg-slate-800/80 border border-slate-700 hover:border-slate-600 rounded-full text-sm text-slate-300 transition-colors"
                   >
                     {question}
                   </button>
@@ -245,13 +273,15 @@ export default function HomePage() {
 
           {/* Answer */}
           {answer && (
-            <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-lg p-8 space-y-6">
+            <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-8 space-y-6">
               <div>
                 <h2 className="text-xl font-semibold text-white mb-4">
                   Answer
                 </h2>
-                <div className="text-slate-300 leading-relaxed whitespace-pre-line">
-                  {formatAnswer(answer)}
+                <div className="bg-slate-950/80 border border-slate-800 rounded-lg p-6">
+                  <div className="text-slate-300 leading-7">
+                    {formatAnswer(answer)}
+                  </div>
                 </div>
               </div>
 
@@ -265,7 +295,7 @@ export default function HomePage() {
                     {sources.map((source, idx) => (
                       <div
                         key={idx}
-                        className="bg-slate-900/50 border border-slate-700 rounded-lg p-4 space-y-2"
+                        className="bg-slate-950/80 border border-slate-800 rounded-lg p-6 space-y-2"
                       >
                         <div className="flex justify-between items-start">
                           <div className="font-medium text-blue-400">
@@ -274,7 +304,7 @@ export default function HomePage() {
                               .replace(/_/g, " ")}
                           </div>
                           {source.score !== null && (
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-slate-400">
                               Score: {source.score.toFixed(3)}
                             </div>
                           )}
