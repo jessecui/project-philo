@@ -17,6 +17,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState<"searching" | "thinking" | "generating">("searching");
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState<Source[]>([]);
   const [error, setError] = useState("");
@@ -152,6 +153,7 @@ export default function App() {
     if (!query.trim()) return;
 
     setIsLoading(true);
+    setLoadingPhase("searching");
     setAnswer("");
     setSources([]);
     setError("");
@@ -200,7 +202,9 @@ export default function App() {
 
             if (data.type === "sources") {
               setSources(data.data);
+              setLoadingPhase("thinking");
             } else if (data.type === "token") {
+              setLoadingPhase("generating");
               setAnswer((prev) => prev + data.data);
             } else if (data.type === "error") {
               setError(data.data.message);
@@ -275,7 +279,9 @@ export default function App() {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Searching
+                    {loadingPhase === "searching" && "Finding sources..."}
+                    {loadingPhase === "thinking" && "Thinking..."}
+                    {loadingPhase === "generating" && "Generating..."}
                   </>
                 ) : (
                   <>
