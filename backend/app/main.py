@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Cookie, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 import os
@@ -19,7 +19,12 @@ from app.services.reranker_service import CrossEncoderReranker
 from app.services.generation_service import GeminiGenerator
 import time
 
-app = FastAPI(title="Document Embedding API")
+app = FastAPI(
+    title="Document Embedding API",
+    docs_url=None,      # Disable /docs
+    redoc_url=None,     # Disable /redoc
+    openapi_url=None,   # Disable /openapi.json
+)
 
 # CORS middleware
 app.add_middleware(
@@ -35,6 +40,15 @@ embedding_service = EmbeddingService()
 document_processor = DocumentProcessor()
 vector_store = VectorStore()
 reranker = CrossEncoderReranker()  # Initialize reranker for 2-stage retrieval
+
+
+# --- Auth Dependency ---
+
+async def require_auth(creator_auth: str | None = Cookie(default=None)):
+    """Require valid auth cookie to access protected endpoints."""
+    if creator_auth != "true":
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
 
 # Initialize distributed ingestion pipeline only if ENABLE_RAY is set
 if os.getenv("ENABLE_RAY", "false").lower() == "true":
@@ -692,7 +706,7 @@ async def generate_from_results(request: GenerateFromResultsRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/search-and-generate")
+@app.post("/search-and-generate", dependencies=[Depends(require_auth)])
 async def search_and_generate(request: GenerateRequest):
     """
     Retrieve relevant document excerpts and generate an answer using Gemini 3 Flash.

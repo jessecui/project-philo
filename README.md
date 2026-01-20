@@ -1,6 +1,6 @@
 # Project Philo
 
-A semantic search and RAG (Retrieval-Augmented Generation) platform for philosophical texts, featuring a Next.js frontend and FastAPI backend with 2-stage retrieval and AI-powered answers.
+A semantic search and RAG (Retrieval-Augmented Generation) platform for philosophical texts, featuring a Vite + React frontend and FastAPI backend with 2-stage retrieval and AI-powered answers.
 
 ## Features
 
@@ -13,7 +13,7 @@ A semantic search and RAG (Retrieval-Augmented Generation) platform for philosop
 
 ## Tech Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS
+- **Frontend**: Vite, React 19, TypeScript, Tailwind CSS v4
 - **Backend**: FastAPI, Python
 - **Vector Store**: FAISS with persistent storage
 - **AI/ML**:
@@ -39,7 +39,9 @@ git clone https://github.com/jessecui/project-philo.git
 cd project-philo
 
 # Frontend dependencies
+cd frontend
 npm install
+cd ..
 
 # Backend dependencies
 cd backend
@@ -51,15 +53,9 @@ pip install -r requirements.txt
 Create `backend/.env`:
 
 ```bash
-GOOGLE_CLOUD_PROJECT=your-gcp-project-id
-VERTEX_AI_LOCATION=us-central1
-# Optional: GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
-```
-
-For local development, use Application Default Credentials:
-```bash
-gcloud auth application-default login
-gcloud services enable aiplatform.googleapis.com
+GOOGLE_API_KEY=your-google-ai-api-key
+CREATOR_NAME=your-name  # For auth modal
+# Optional: ENABLE_RAY=true  # For distributed processing
 ```
 
 ### 3. Index the Texts
@@ -78,11 +74,11 @@ This will generate `backend/data/faiss.index` and `backend/data/metadata.json`.
 ```bash
 # Terminal 1: Start backend (from backend/)
 uvicorn app.main:app --reload
-# API at http://localhost:8000, docs at http://localhost:8000/docs
+# API at http://localhost:8000
 
-# Terminal 2: Start frontend (from project root)
+# Terminal 2: Start frontend (from frontend/)
 npm run dev
-# App at http://localhost:3000
+# App at http://localhost:5173
 ```
 
 ---
