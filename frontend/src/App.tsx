@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { Loader2, Search } from "lucide-react";
+import { ChevronDown, Loader2, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { AuthModal } from "@/components/auth-modal";
@@ -19,6 +19,7 @@ export default function App() {
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState<Source[]>([]);
   const [error, setError] = useState("");
+  const [sourcesExpanded, setSourcesExpanded] = useState(false);
 
   useEffect(() => {
     const authCookie = Cookies.get("creator_auth");
@@ -274,50 +275,56 @@ export default function App() {
           {/* Answer */}
           {answer && (
             <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-8 space-y-6">
-              <div>
-                <h2 className="text-xl font-semibold text-white mb-4">
-                  Answer
-                </h2>
-                <div className="bg-slate-950/80 border border-slate-800 rounded-lg p-6">
-                  <div className="text-slate-300 leading-7">
-                    {formatAnswer(answer)}
-                  </div>
+              <div className="bg-slate-950/80 border border-slate-800 rounded-lg p-6">
+                <div className="text-slate-300 leading-7">
+                  {formatAnswer(answer)}
                 </div>
               </div>
 
               {/* Sources */}
               {sources.length > 0 && (
                 <div className="border-t border-slate-700 pt-6 space-y-4">
-                  <h3 className="text-lg font-semibold text-white">
+                  <button
+                    onClick={() => setSourcesExpanded(!sourcesExpanded)}
+                    className="flex items-center gap-2 text-lg font-semibold text-white hover:text-slate-300 transition-colors"
+                  >
+                    <ChevronDown
+                      className={cn(
+                        "w-5 h-5 transition-transform",
+                        sourcesExpanded ? "rotate-0" : "-rotate-90"
+                      )}
+                    />
                     Sources ({sources.length})
-                  </h3>
-                  <div className="space-y-3">
-                    {sources.map((source, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-slate-950/80 border border-slate-800 rounded-lg p-6 space-y-2"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="font-medium text-blue-400">
-                            {source.filename
-                              .replace(/\.[^/.]+$/, "")
-                              .replace(/_/g, " ")}
-                          </div>
-                          {source.score !== null && (
-                            <div className="text-xs text-slate-400">
-                              Score: {source.score.toFixed(3)}
+                  </button>
+                  {sourcesExpanded && (
+                    <div className="space-y-3">
+                      {sources.map((source, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-slate-950/80 border border-slate-800 rounded-lg p-6 space-y-2"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="font-medium text-blue-400">
+                              {source.filename
+                                .replace(/\.[^/.]+$/, "")
+                                .replace(/_/g, " ")}
                             </div>
-                          )}
+                            {source.score !== null && (
+                              <div className="text-xs text-slate-400">
+                                Score: {source.score.toFixed(3)}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-sm text-slate-400">
+                            Paragraph {source.paragraph_idx}
+                          </div>
+                          <div className="text-slate-300 text-sm leading-relaxed">
+                            {source.text}
+                          </div>
                         </div>
-                        <div className="text-sm text-slate-400">
-                          Paragraph {source.paragraph_idx}
-                        </div>
-                        <div className="text-slate-300 text-sm leading-relaxed">
-                          {source.text}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
