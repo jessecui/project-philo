@@ -5,10 +5,12 @@ load_dotenv()
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Cookie, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 import os
 import uuid
 import json
+from pathlib import Path
 from typing import Optional, AsyncGenerator
 from pydantic import BaseModel
 from app.services.embedding_service import EmbeddingService
@@ -18,6 +20,10 @@ from app.services.distributed_ingestion import DistributedIngestionPipeline
 from app.services.reranker_service import CrossEncoderReranker
 from app.services.generation_service import GeminiGenerator
 import time
+
+# Project paths
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+FRONTEND_DIST = PROJECT_ROOT / "frontend" / "dist"
 
 app = FastAPI(
     title="Document Embedding API",
@@ -97,11 +103,6 @@ class GenerateFromResultsRequest(BaseModel):
     results: list  # Pre-fetched search results from /search endpoint
     temperature: float = 0.7  # Sampling temperature for generation
     max_output_tokens: int = 8192  # Maximum tokens in generated response
-
-
-@app.get("/")
-async def root():
-    return {"message": "Document Embedding API", "status": "running"}
 
 
 @app.get("/health")
@@ -820,6 +821,43 @@ async def search_and_generate(request: GenerateRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# --- Serve React Frontend ---
+
+# Mount static assets if frontend is built
+if FRONTEND_DIST.exists() and (FRONTEND_DIST / "assets").exists():
+    app.mount(
+        "/assets",
+        StaticFiles(directory=str(FRONTEND_DIST / "assets")),
+        name="frontend-assets",
+    )
+
+
+@app.get("/", summary="Health check / Frontend", include_in_schema=False)
+async def root():
+    """Serve frontend index.html in production, health check in dev."""
+    index_file = FRONTEND_DIST / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {
+        "status": "healthy",
+        "message": "API running. Build frontend with: cd frontend && npm run build",
+    }
+
+
+@app.get("/{path:path}", include_in_schema=False)
+async def spa_fallback(path: str):
+    """Serve index.html for any unmatched routes (SPA client-side routing)."""
+    # First check if it's a static file in dist root (favicon.svg, etc.)
+    file_path = FRONTEND_DIST / path
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(file_path)
+    # Otherwise serve index.html for client-side routing
+    index_file = FRONTEND_DIST / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    raise HTTPException(status_code=404, detail="Not found")
 
 
 if __name__ == "__main__":

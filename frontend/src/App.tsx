@@ -418,6 +418,16 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {/* Available Works - Fixed at bottom */}
+        {!answer && !isLoading && (
+          <div className="fixed bottom-0 left-0 right-0 py-4 text-center bg-linear-to-t from-slate-900 to-transparent">
+            <hr className="border-slate-700/50 max-w-4xl mx-auto mb-4" />
+            <p className="text-slate-400 text-sm">
+              Available works: <em>Beyond Good and Evil</em>, <em>Meditations</em>, <em>Self-Reliance</em>, <em>Tao Te Ching</em>, <em>The Enchiridion</em>, <em>The Myth of Sisyphus</em>
+            </p>
+          </div>
+        )}
       </div>
     </>
   );
