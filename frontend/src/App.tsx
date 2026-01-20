@@ -270,8 +270,8 @@ export default function App() {
           </div>
 
           {/* Search Box */}
-          <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-8 space-y-6">
-            <form onSubmit={handleSearch} className="flex gap-3">
+          <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-4 sm:p-8 space-y-6">
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 value={query}
@@ -289,7 +289,7 @@ export default function App() {
                 type="submit"
                 disabled={isLoading || !query.trim()}
                 className={cn(
-                  "px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors cursor-pointer",
+                  "px-6 py-3 rounded-lg flex items-center justify-center sm:justify-start gap-2 font-medium transition-colors cursor-pointer",
                   "bg-blue-600 hover:bg-blue-700 text-white",
                   "disabled:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50",
                 )}
@@ -345,7 +345,7 @@ export default function App() {
 
           {/* Answer */}
           {answer && (
-            <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-8 space-y-6">
+            <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-4 sm:p-8 space-y-6">
               <div className="bg-slate-950/80 border border-slate-800 rounded-lg p-6">
                 <div className="text-slate-300 leading-7">
                   {formatAnswer(answer)}
@@ -380,8 +380,8 @@ export default function App() {
                               : "border-slate-800",
                           )}
                         >
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-center gap-2">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-2">
+                            <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                               <span className="text-blue-400 font-semibold">
                                 [{idx + 1}]
                               </span>
