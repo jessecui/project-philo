@@ -33,15 +33,12 @@ class SentenceMetadata:
 
 @dataclass
 class SearchResult:
-    """Result from a similarity search."""
+    """Result from a similarity search - one per paragraph."""
 
     doc_id: str
     filename: str
     paragraph_idx: int
     paragraph_text: str
-    matched_sentences: List[str]
-    similarity_scores: List[float]
-    # Optional fields for 2-stage retrieval with context
     reranking_score: Optional[float] = None
     context_paragraphs_before: Optional[List[str]] = None
     context_paragraphs_after: Optional[List[str]] = None
@@ -181,18 +178,16 @@ class VectorStore:
         self,
         query_embedding: List[float],
         top_k: int = 5,
-        deduplicate_paragraphs: bool = True,
     ) -> List[SearchResult]:
         """
-        Search for similar sentences and return results grouped by paragraph.
+        Search for similar sentences, returning unique paragraphs.
 
         Args:
             query_embedding: Embedding vector of the query
-            top_k: Number of results to return
-            deduplicate_paragraphs: If True, return only one result per paragraph
+            top_k: Number of top paragraphs to find
 
         Returns:
-            List of search results with paragraph context
+            List of search results, one per unique paragraph
         """
         if self.index.ntotal == 0:
             return []
@@ -200,50 +195,35 @@ class VectorStore:
         # Convert query to numpy array
         query_array = np.array([query_embedding], dtype=np.float32)
 
-        # Search FAISS index (get more results if deduplicating)
-        search_k = top_k * 5 if deduplicate_paragraphs else top_k
+        # Search FAISS index - get more results to ensure enough unique paragraphs
         distances, indices = self.index.search(
-            query_array, min(search_k, self.index.ntotal)
+            query_array, min(top_k * 5, self.index.ntotal)
         )
 
-        # Group results by (doc_id, paragraph_idx)
-        paragraph_groups: Dict[Tuple[str, int], List[Tuple[str, float]]] = {}
-
+        # Group by paragraph, keep best score per paragraph
+        seen_paragraphs: Dict[Tuple[str, int], float] = {}
+        
         for distance, idx in zip(distances[0], indices[0]):
-            if idx == -1:  # FAISS returns -1 for unfilled results
+            if idx == -1:
                 continue
 
             sentence_meta = self.sentences[idx]
             key = (sentence_meta.doc_id, sentence_meta.paragraph_idx)
-
-            # Convert L2 distance to similarity score (inverse)
             similarity = 1.0 / (1.0 + distance)
 
-            if key not in paragraph_groups:
-                paragraph_groups[key] = []
+            if key not in seen_paragraphs or similarity > seen_paragraphs[key]:
+                seen_paragraphs[key] = similarity
 
-            paragraph_groups[key].append((sentence_meta.sentence_text, similarity))
-
-        # Build search results
+        # Build results sorted by similarity
         results = []
-        for (doc_id, para_idx), matches in paragraph_groups.items():
+        sorted_paragraphs = sorted(seen_paragraphs.items(), key=lambda x: x[1], reverse=True)
+        
+        for (doc_id, para_idx), similarity in sorted_paragraphs[:top_k]:
             doc_meta = self.documents.get(doc_id)
             if not doc_meta:
                 continue
 
             paragraph_text = self.paragraph_cache.get((doc_id, para_idx), "")
-
-            # Sort matches by similarity and get unique sentences
-            matches.sort(key=lambda x: x[1], reverse=True)
-            seen_sentences = set()
-            unique_matches = []
-            scores = []
-
-            for sent, score in matches:
-                if sent not in seen_sentences:
-                    seen_sentences.add(sent)
-                    unique_matches.append(sent)
-                    scores.append(score)
 
             results.append(
                 SearchResult(
@@ -251,15 +231,10 @@ class VectorStore:
                     filename=doc_meta.filename,
                     paragraph_idx=para_idx,
                     paragraph_text=paragraph_text,
-                    matched_sentences=unique_matches,
-                    similarity_scores=scores,
                 )
             )
 
-        # Sort by best similarity score in each paragraph group
-        results.sort(key=lambda x: max(x.similarity_scores), reverse=True)
-
-        return results[:top_k]
+        return results
 
     def delete_document(self, doc_id: str) -> bool:
         """
@@ -402,7 +377,7 @@ class VectorStore:
         query_embedding: List[float],
         reranker: "CrossEncoderReranker",
         top_k_faiss: int = 50,
-        top_n_final: int = 10,
+        top_k_paragraphs: int = 5,
         context_window: int = 2,
     ) -> Tuple[List[SearchResult], Dict[str, float]]:
         """
@@ -412,8 +387,8 @@ class VectorStore:
             query_text: Search query text (needed for cross-encoder)
             query_embedding: Query embedding vector (for FAISS stage)
             reranker: CrossEncoderReranker instance
-            top_k_faiss: Number of candidates to retrieve from FAISS (default: 50)
-            top_n_final: Number of final results after reranking (default: 10)
+            top_k_faiss: Number of sentence candidates from FAISS (default: 50)
+            top_k_paragraphs: Number of top paragraphs to return (default: 5)
             context_window: Number of paragraphs before/after to include (default: 2)
 
         Returns:
@@ -436,35 +411,21 @@ class VectorStore:
             query_array, min(top_k_faiss, self.index.ntotal)
         )
 
-        # Group by paragraph and build paragraph list
-        paragraph_groups: Dict[Tuple[str, int], List[Tuple[str, float]]] = {}
-
+        # Get unique paragraphs from FAISS results
+        unique_paragraphs: Dict[Tuple[str, int], str] = {}
         for distance, idx in zip(distances[0], indices[0]):
             if idx == -1:
                 continue
-
-            sentence_meta = self.sentences[idx]
-            key = (sentence_meta.doc_id, sentence_meta.paragraph_idx)
-
-            # Convert L2 distance to similarity score
-            similarity = 1.0 / (1.0 + distance)
-
-            if key not in paragraph_groups:
-                paragraph_groups[key] = []
-
-            paragraph_groups[key].append((sentence_meta.sentence_text, similarity))
-
-        # Build paragraph list for reranking
-        paragraphs_for_reranking = []
-        for (doc_id, para_idx), matches in paragraph_groups.items():
-            paragraph_text = self.paragraph_cache.get((doc_id, para_idx), "")
-            if paragraph_text:
-                paragraphs_for_reranking.append((doc_id, para_idx, paragraph_text))
+            meta = self.sentences[idx]
+            key = (meta.doc_id, meta.paragraph_idx)
+            if key not in unique_paragraphs:
+                para_text = self.paragraph_cache.get(key, "")
+                if para_text:
+                    unique_paragraphs[key] = para_text
 
         faiss_time = time.time() - faiss_start
 
-        # Stage 2: Cross-encoder reranking
-        if not paragraphs_for_reranking:
+        if not unique_paragraphs:
             return (
                 [],
                 {
@@ -474,11 +435,17 @@ class VectorStore:
                 },
             )
 
+        # Stage 2: Cross-encoder reranking
+        paragraphs_for_reranking = [
+            (doc_id, para_idx, text) 
+            for (doc_id, para_idx), text in unique_paragraphs.items()
+        ]
+
         reranked_paragraphs, reranking_time = reranker.rerank_paragraphs(
-            query_text, paragraphs_for_reranking, top_n=top_n_final
+            query_text, paragraphs_for_reranking, top_n=top_k_paragraphs
         )
 
-        # Build final results with context expansion
+        # Build final results
         results = []
         for doc_id, para_idx, para_text, rerank_score in reranked_paragraphs:
             doc_meta = self.documents.get(doc_id)
@@ -486,15 +453,9 @@ class VectorStore:
                 continue
 
             # Get context paragraphs
-            main_para, paras_before, paras_after = self.get_paragraph_with_context(
+            _, paras_before, paras_after = self.get_paragraph_with_context(
                 doc_id, para_idx, context_window
             )
-
-            # Get matched sentences from FAISS stage
-            matches = paragraph_groups.get((doc_id, para_idx), [])
-            matches.sort(key=lambda x: x[1], reverse=True)
-            matched_sentences = [sent for sent, _ in matches]
-            similarity_scores = [score for _, score in matches]
 
             results.append(
                 SearchResult(
@@ -502,8 +463,6 @@ class VectorStore:
                     filename=doc_meta.filename,
                     paragraph_idx=para_idx,
                     paragraph_text=para_text,
-                    matched_sentences=matched_sentences,
-                    similarity_scores=similarity_scores,
                     reranking_score=rerank_score,
                     context_paragraphs_before=paras_before,
                     context_paragraphs_after=paras_after,

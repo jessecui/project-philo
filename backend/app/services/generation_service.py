@@ -67,23 +67,14 @@ class GeminiGenerator:
         context_parts.append("=== Retrieved Document Excerpts ===\n")
 
         for i, result in enumerate(search_results, 1):
-            context_parts.append(f"\n[{i}] Document: {result.filename}")
-            context_parts.append(f"    Paragraph: {result.paragraph_idx}")
+            context_parts.append(f"\n[{i}] Document: {result.filename}, Paragraph {result.paragraph_idx}")
 
             if result.reranking_score is not None:
                 context_parts.append(
                     f"    Relevance Score: {result.reranking_score:.4f}"
                 )
 
-            # Include the matched sentence(s) that triggered this result
-            if result.matched_sentences:
-                context_parts.append("\n    Matched Sentence(s):")
-                for sentence in result.matched_sentences:
-                    context_parts.append(f"    >>> {sentence}")
-
-            # Main paragraph
-            context_parts.append(f"\n    Text:")
-            context_parts.append(f"    {result.paragraph_text}")
+            context_parts.append(f"\n    {result.paragraph_text}")
 
         return "\n".join(context_parts)
 

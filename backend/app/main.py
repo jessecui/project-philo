@@ -21,9 +21,9 @@ import time
 
 app = FastAPI(
     title="Document Embedding API",
-    docs_url=None,      # Disable /docs
-    redoc_url=None,     # Disable /redoc
-    openapi_url=None,   # Disable /openapi.json
+    docs_url=None,  # Disable /docs
+    redoc_url=None,  # Disable /redoc
+    openapi_url=None,  # Disable /openapi.json
 )
 
 # CORS middleware
@@ -43,6 +43,7 @@ reranker = CrossEncoderReranker()  # Initialize reranker for 2-stage retrieval
 
 
 # --- Auth Dependency ---
+
 
 async def require_auth(creator_auth: str | None = Cookie(default=None)):
     """Require valid auth cookie to access protected endpoints."""
@@ -436,7 +437,7 @@ async def search_documents(request: SearchRequest):
                 query_embedding=query_embedding,
                 reranker=reranker,
                 top_k_faiss=request.top_k_faiss,
-                top_n_final=request.top_k,
+                top_k_paragraphs=request.top_k,
                 context_window=request.context_window,
             )
 
@@ -446,12 +447,8 @@ async def search_documents(request: SearchRequest):
                 result_dict = {
                     "doc_id": result.doc_id,
                     "filename": result.filename,
-                    "paragraph_index": result.paragraph_idx,
+                    "paragraph_idx": result.paragraph_idx,
                     "paragraph_text": result.paragraph_text,
-                    "matched_sentences": result.matched_sentences,
-                    "similarity_scores": [
-                        float(score) for score in result.similarity_scores
-                    ],
                     "reranking_score": (
                         float(result.reranking_score)
                         if result.reranking_score is not None
@@ -491,7 +488,6 @@ async def search_documents(request: SearchRequest):
             results = vector_store.search(
                 query_embedding=query_embedding,
                 top_k=request.top_k,
-                deduplicate_paragraphs=request.deduplicate_paragraphs,
             )
 
             # Convert results to JSON-serializable format
@@ -501,12 +497,8 @@ async def search_documents(request: SearchRequest):
                     {
                         "doc_id": result.doc_id,
                         "filename": result.filename,
-                        "paragraph_index": result.paragraph_idx,
+                        "paragraph_idx": result.paragraph_idx,
                         "paragraph_text": result.paragraph_text,
-                        "matched_sentences": result.matched_sentences,
-                        "similarity_scores": [
-                            float(score) for score in result.similarity_scores
-                        ],
                     }
                 )
 
@@ -644,10 +636,8 @@ async def generate_from_results(request: GenerateFromResultsRequest):
             result = SearchResult(
                 doc_id=r.get("doc_id"),
                 filename=r.get("filename"),
-                paragraph_idx=r.get("paragraph_index"),
+                paragraph_idx=r.get("paragraph_idx"),
                 paragraph_text=r.get("paragraph_text"),
-                matched_sentences=r.get("matched_sentences", []),
-                similarity_scores=r.get("similarity_scores", []),
                 reranking_score=r.get("reranking_score"),
                 context_paragraphs_before=r.get("context_paragraphs_before"),
                 context_paragraphs_after=r.get("context_paragraphs_after"),
@@ -754,7 +744,7 @@ async def search_and_generate(request: GenerateRequest):
                 query_embedding=query_embedding,
                 reranker=reranker,
                 top_k_faiss=request.top_k_faiss,
-                top_n_final=request.top_k_context,
+                top_k_paragraphs=request.top_k_context,
                 context_window=request.context_window,
             )
             retrieval_time = timing["total_time"]
@@ -762,7 +752,6 @@ async def search_and_generate(request: GenerateRequest):
             results = vector_store.search(
                 query_embedding=query_embedding,
                 top_k=request.top_k_context,
-                deduplicate_paragraphs=True,
             )
             retrieval_time = time.time() - retrieval_start
             timing = {"faiss_time": retrieval_time, "reranking_time": 0}
