@@ -218,7 +218,7 @@ export default function App() {
                 type="submit"
                 disabled={isLoading || !query.trim()}
                 className={cn(
-                  "px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors",
+                  "px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors cursor-pointer",
                   "bg-blue-600 hover:bg-blue-700 text-white",
                   "disabled:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50",
                 )}
@@ -269,7 +269,7 @@ export default function App() {
                   <button
                     key={question}
                     onClick={() => handleExampleClick(question)}
-                    className="px-4 py-2 bg-slate-900/80 hover:bg-slate-800/80 border border-slate-700 hover:border-slate-600 rounded-full text-sm text-slate-300 transition-colors"
+                    className="px-4 py-2 bg-slate-900/80 hover:bg-slate-800/80 border border-slate-700 hover:border-slate-600 rounded-full text-sm text-slate-300 transition-colors cursor-pointer"
                   >
                     {question}
                   </button>
@@ -299,7 +299,7 @@ export default function App() {
                 <div className="border-t border-slate-700 pt-6 space-y-4">
                   <button
                     onClick={() => setSourcesExpanded(!sourcesExpanded)}
-                    className="flex items-center gap-2 text-lg font-semibold text-white hover:text-slate-300 transition-colors"
+                    className="flex items-center gap-2 text-lg font-semibold text-white hover:text-slate-300 transition-colors cursor-pointer"
                   >
                     <ChevronDown
                       className={cn(
