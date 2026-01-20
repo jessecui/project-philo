@@ -157,7 +157,7 @@ python -m app.scripts.test_search_and_generate "How should one cultivate virtue?
 
 Server-Sent Events (SSE) streaming:
 
-```json
+```
 // Initial: Retrieved sources
 data: {"type":"sources","data":[{"filename":"Tao_Te_Ching.txt","paragraph_idx":5,"text":"...","score":0.85}]}
 
