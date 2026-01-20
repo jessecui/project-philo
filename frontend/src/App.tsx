@@ -246,8 +246,7 @@ export default function App() {
               Project Philo
             </h1>
             <p className="text-slate-400/80 text-lg">
-              Your AI philosophy assistant, powered by semantic search and
-              intelligent reranking.
+              Search classic philosophy, powered by AI.
             </p>
           </div>
 
@@ -291,24 +290,6 @@ export default function App() {
                 )}
               </button>
             </form>
-
-            {/* Quick Stats */}
-            <div className="flex gap-6 text-sm text-slate-400 justify-center pt-4 border-t border-slate-800">
-              <div>
-                <span className="font-semibold text-slate-300">FAISS</span> Vector
-                Search
-              </div>
-              <div>•</div>
-              <div>
-                <span className="font-semibold text-slate-300">Cross-Encoder</span>{" "}
-                Reranking
-              </div>
-              <div>•</div>
-              <div>
-                <span className="font-semibold text-slate-300">Gemini 3 Flash</span>{" "}
-                Generation
-              </div>
-            </div>
           </div>
 
           {/* Example Questions */}
