@@ -482,16 +482,14 @@ def run_test(vector_store: VectorStore, use_reranking: bool = False):
                 query_text=query,
                 query_embedding=query_embedding,
                 top_k_faiss=30,  # Retrieve all sentences to ensure all 50 paragraphs are candidates
-                top_n_final=10,
+                top_k_paragraphs=10,
                 reranker=reranker,
                 context_window=0,
             )
         else:
             # Embed query for FAISS search
             query_embedding = embedding_service.embed_texts([query])[0]
-            results = vector_store.search(
-                query_embedding=query_embedding, top_k=10, deduplicate_paragraphs=True
-            )
+            results = vector_store.search(query_embedding=query_embedding, top_k=10)
 
         # Check if top result matches expected paragraph
         if results:

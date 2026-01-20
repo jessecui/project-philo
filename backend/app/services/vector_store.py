@@ -384,7 +384,7 @@ class VectorStore:
         query_text: str,
         query_embedding: List[float],
         reranker: "CrossEncoderReranker",
-        top_k_faiss: int = 50,
+        top_k_faiss: int = 30,
         top_k_paragraphs: int = 5,
         context_window: int = 2,
     ) -> Tuple[List[SearchResult], Dict[str, float]]:

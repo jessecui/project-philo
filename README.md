@@ -5,7 +5,7 @@ A semantic search and RAG (Retrieval-Augmented Generation) platform for philosop
 ## Features
 
 - 🔍 **Semantic Search**: Sentence embeddings with all-MiniLM-L6-v2 (384-dim)
-- 🎯 **2-Stage Retrieval**: FAISS + cross-encoder reranking (94% vs 62% accuracy, +32pp improvement)
+- 🎯 **2-Stage Retrieval**: FAISS + cross-encoder reranking (88% vs 62% accuracy, +26pp improvement)
 - 🤖 **RAG Generation**: Gemini 3 Flash streaming answers with source citations
 - 📄 **Multi-format Support**: PDF, TXT, MD, DOCX
 - ⚡ **Ray Distributed Processing**: 3.96x speedup on 10 cores
@@ -18,7 +18,7 @@ A semantic search and RAG (Retrieval-Augmented Generation) platform for philosop
 - **Vector Store**: FAISS with persistent storage
 - **AI/ML**:
   - Embeddings: all-MiniLM-L6-v2 (384-dim, bi-encoder)
-  - Reranker: BAAI/bge-reranker-v2-m3 (cross-encoder)
+  - Reranker: cross-encoder/ms-marco-MiniLM-L-6-v2
   - Generation: Gemini 3 Flash (1M token context, streaming)
 - **Distributed Processing**: Ray
 
@@ -101,9 +101,8 @@ npm run dev
 - `query` (required): Search text
 - `use_reranking` (default: false): Enable 2-stage retrieval
 - `top_k` (default: 5): Results to return
-- `top_k_faiss` (default: 50): FAISS candidates for reranking
+- `top_k_faiss` (default: 30): FAISS candidates for reranking
 - `context_window` (default: 2): Paragraphs before/after for context
-- `deduplicate_paragraphs` (default: true): One result per paragraph
 
 ---
 
@@ -180,10 +179,10 @@ Tested on 50 philosophical queries with 100 paragraphs:
 
 | Metric | FAISS-only | FAISS + Reranking | Improvement |
 |--------|-----------|------------------|-------------|
-| **Accuracy@1** | 62% | 94% | **+32pp** |
-| **nDCG@10** | 0.760 | 0.928 | **+22.1%** |
-| **MRR** | 0.740 | 0.965 | **+30.4%** |
-| **Query Time** | ~50ms | ~360ms | 7x slower |
+| **Accuracy@1** | 62% | 88% | **+26pp** |
+| **nDCG@10** | 0.760 | 0.899 | **+18.3%** |
+| **MRR** | 0.740 | 0.930 | **+25.6%** |
+| **Query Time** | ~5ms | ~50ms | 10x slower |
 
 ### When to Use Reranking
 
@@ -224,7 +223,7 @@ python -m app.evaluation.eval_ray_ingestion_latency
 
 ```
 project-philo/
-├── src/                                # Next.js frontend
+├── frontend/src/                       # Vite + React frontend
 │   ├── app/
 │   │   ├── page.tsx                    # Main search interface
 │   │   ├── layout.tsx                  # App layout
@@ -285,14 +284,9 @@ project-philo/
 
 ## Troubleshooting
 
-**"Vertex AI generator not initialized"**
-- Check `.env` file exists with correct values
-- Verify `GOOGLE_CLOUD_PROJECT` is set
-- Ensure Vertex AI API is enabled: `gcloud services list --enabled | grep aiplatform`
-- Try: `gcloud auth application-default login`
-
-**Permission denied errors**
-- Service account needs `Vertex AI User` role (`roles/aiplatform.user`)
+**"Gemini generator not initialized"**
+- Check `backend/.env` file exists with `GOOGLE_API_KEY`
+- Get API key from https://aistudio.google.com/apikey
 
 ---
 

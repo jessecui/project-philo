@@ -17,12 +17,16 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingPhase, setLoadingPhase] = useState<"searching" | "thinking" | "generating">("searching");
+  const [loadingPhase, setLoadingPhase] = useState<
+    "searching" | "thinking" | "generating"
+  >("searching");
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState<Source[]>([]);
   const [error, setError] = useState("");
   const [sourcesExpanded, setSourcesExpanded] = useState(false);
-  const [highlightedSource, setHighlightedSource] = useState<number | null>(null);
+  const [highlightedSource, setHighlightedSource] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     const authCookie = Cookies.get("creator_auth");
@@ -40,25 +44,29 @@ export default function App() {
     // Use capture phase to catch click before it bubbles
     window.addEventListener("click", clearHighlight, { capture: true });
 
-    return () => window.removeEventListener("click", clearHighlight, { capture: true });
+    return () =>
+      window.removeEventListener("click", clearHighlight, { capture: true });
   }, [highlightedSource]);
 
-  const scrollToSource = useCallback((sourceNum: number) => {
-    // Validate source exists
-    if (sourceNum < 1 || sourceNum > sources.length) return;
+  const scrollToSource = useCallback(
+    (sourceNum: number) => {
+      // Validate source exists
+      if (sourceNum < 1 || sourceNum > sources.length) return;
 
-    // Expand sources if collapsed
-    setSourcesExpanded(true);
+      // Expand sources if collapsed
+      setSourcesExpanded(true);
 
-    // Small delay to allow expansion
-    setTimeout(() => {
-      const element = document.getElementById(`source-${sourceNum}`);
-      if (element) {
-        setHighlightedSource(sourceNum);
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    }, 100);
-  }, [sources.length]);
+      // Small delay to allow expansion
+      setTimeout(() => {
+        const element = document.getElementById(`source-${sourceNum}`);
+        if (element) {
+          setHighlightedSource(sourceNum);
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
+    },
+    [sources.length],
+  );
 
   const handleAuthenticated = () => {
     setIsAuthenticated(true);
@@ -72,16 +80,24 @@ export default function App() {
       // Check if paragraph is a list (starts with - or * or number.)
       const lines = paragraph.split(/\n/);
       const isList = lines.every(
-        (line) => /^[-*•]\s/.test(line.trim()) || /^\d+[.)]\s/.test(line.trim()) || line.trim() === ""
+        (line) =>
+          /^[-*•]\s/.test(line.trim()) ||
+          /^\d+[.)]\s/.test(line.trim()) ||
+          line.trim() === "",
       );
 
       if (isList && lines.some((l) => l.trim())) {
         const listItems = lines.filter((line) => line.trim());
         return (
-          <ul key={pIdx} className="list-disc list-inside space-y-2 my-4 marker:text-slate-400">
+          <ul
+            key={pIdx}
+            className="list-disc list-inside space-y-2 my-4 marker:text-slate-400"
+          >
             {listItems.map((item, idx) => (
               <li key={idx} className="text-slate-300 leading-relaxed">
-                {formatInlineText(item.replace(/^[-*•]\s*/, "").replace(/^\d+[.)]\s*/, ""))}
+                {formatInlineText(
+                  item.replace(/^[-*•]\s*/, "").replace(/^\d+[.)]\s*/, ""),
+                )}
               </li>
             ))}
           </ul>
@@ -97,56 +113,59 @@ export default function App() {
     });
   };
 
-  const formatInlineText = useCallback((text: string) => {
-    const parts: React.ReactNode[] = [];
-    let lastIndex = 0;
+  const formatInlineText = useCallback(
+    (text: string) => {
+      const parts: React.ReactNode[] = [];
+      let lastIndex = 0;
 
-    // Match **bold**, *italic*, and [n] citations
-    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|\[\d+\])/g;
-    let match;
+      // Match **bold**, *italic*, and [n] citations
+      const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|\[\d+\])/g;
+      let match;
 
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(text.substring(lastIndex, match.index));
-      }
-
-      const matchedText = match[0];
-      if (matchedText.startsWith("**") && matchedText.endsWith("**")) {
-        parts.push(
-          <strong key={match.index} className="font-semibold text-white">
-            {matchedText.slice(2, -2)}
-          </strong>,
-        );
-      } else if (matchedText.startsWith("*") && matchedText.endsWith("*")) {
-        parts.push(<em key={match.index}>{matchedText.slice(1, -1)}</em>);
-      } else if (/^\[\d+\]$/.test(matchedText)) {
-        // Citation marker - check if valid source exists
-        const num = parseInt(matchedText.slice(1, -1));
-        if (num >= 1 && num <= sources.length) {
-          parts.push(
-            <button
-              key={match.index}
-              onClick={() => scrollToSource(num)}
-              className="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer font-medium"
-            >
-              {matchedText}
-            </button>
-          );
-        } else {
-          // Invalid citation - render as plain text
-          parts.push(matchedText);
+      while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          parts.push(text.substring(lastIndex, match.index));
         }
+
+        const matchedText = match[0];
+        if (matchedText.startsWith("**") && matchedText.endsWith("**")) {
+          parts.push(
+            <strong key={match.index} className="font-semibold text-white">
+              {matchedText.slice(2, -2)}
+            </strong>,
+          );
+        } else if (matchedText.startsWith("*") && matchedText.endsWith("*")) {
+          parts.push(<em key={match.index}>{matchedText.slice(1, -1)}</em>);
+        } else if (/^\[\d+\]$/.test(matchedText)) {
+          // Citation marker - check if valid source exists
+          const num = parseInt(matchedText.slice(1, -1));
+          if (num >= 1 && num <= sources.length) {
+            parts.push(
+              <button
+                key={match.index}
+                onClick={() => scrollToSource(num)}
+                className="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer font-medium"
+              >
+                {matchedText}
+              </button>,
+            );
+          } else {
+            // Invalid citation - render as plain text
+            parts.push(matchedText);
+          }
+        }
+
+        lastIndex = regex.lastIndex;
       }
 
-      lastIndex = regex.lastIndex;
-    }
+      if (lastIndex < text.length) {
+        parts.push(text.substring(lastIndex));
+      }
 
-    if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex));
-    }
-
-    return parts;
-  }, [sources.length, scrollToSource]);
+      return parts;
+    },
+    [sources.length, scrollToSource],
+  );
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,9 +186,9 @@ export default function App() {
         },
         body: JSON.stringify({
           query: query,
-          top_k_context: 5,
+          top_k_context: 10,
           use_reranking: true,
-          top_k_faiss: 50,
+          top_k_faiss: 30,
           context_window: 2,
           temperature: 0.7,
           max_output_tokens: 8192,
@@ -298,9 +317,12 @@ export default function App() {
               <p className="text-slate-400 text-sm text-center">Try asking:</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {[
-                  "What is self-reliance?",
-                  "How should I live according to the Tao?",
-                  "How do we accept what's not in our control?",
+                  "What does it mean to live authentically?",
+                  "Why do we need constraints to be free?",
+                  "Is it better to be good or to be great?",
+                  "When should I act versus wait?",                  
+                  "Is suffering a mistake or a tool?",
+                  "Is it better to know the truth or to be happy?",
                 ].map((question) => (
                   <button
                     key={question}
@@ -340,7 +362,7 @@ export default function App() {
                     <ChevronDown
                       className={cn(
                         "w-5 h-5 transition-transform",
-                        sourcesExpanded ? "rotate-0" : "-rotate-90"
+                        sourcesExpanded ? "rotate-0" : "-rotate-90",
                       )}
                     />
                     Sources ({sources.length})
@@ -355,12 +377,14 @@ export default function App() {
                             "bg-slate-950/80 border rounded-lg p-6 space-y-2 transition-all duration-300",
                             highlightedSource === idx + 1
                               ? "border-blue-400 ring-2 ring-blue-400/50 shadow-lg shadow-blue-500/20"
-                              : "border-slate-800"
+                              : "border-slate-800",
                           )}
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
-                              <span className="text-blue-400 font-semibold">[{idx + 1}]</span>
+                              <span className="text-blue-400 font-semibold">
+                                [{idx + 1}]
+                              </span>
                               <span className="font-medium text-blue-400">
                                 {source.filename
                                   .replace(/\.txt$/, "")
@@ -368,7 +392,9 @@ export default function App() {
                                   .replace(/_/g, " ")}
                               </span>
                               {source.author && (
-                                <span className="text-slate-400">by {source.author}</span>
+                                <span className="text-slate-400">
+                                  by {source.author}
+                                </span>
                               )}
                             </div>
                             {source.score !== null && (

@@ -108,6 +108,10 @@ Guidelines:
 
 5. **Stay grounded**: Only draw from the provided excerpts. If they don't fully address the question, say so briefly.
 
+6. **Identify debates and tensions**: When philosophers directly engage with or critique each other's ideas, highlight this. If Nietzsche critiques Stoicism, or if two sources offer contrasting views, make the intellectual conversation explicit rather than presenting views in isolation.
+
+7. **Own the answer**: Never start with meta-commentary like "The provided excerpts suggest...", "According to the sources...", "The consensus among these philosophers is...", or "These thinkers agree that...". Just answer the question directly, as if you're providing information you already know.
+
 Tone: Warm but not gushing. Clear but not dry. Like explaining an interesting idea to a curious friend."""
 
     async def stream_answer(

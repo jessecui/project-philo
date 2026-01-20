@@ -352,365 +352,368 @@ Testing: FAISS + Cross-Encoder Reranking
 Loading embedding model: all-MiniLM-L6-v2 on mps
 Model loaded successfully. Embedding dimension: 384
 🚀 MPS (Metal Performance Shaders) detected - using GPU acceleration for reranking
-Loading cross-encoder model: BAAI/bge-reranker-v2-m3 on mps
+Loading cross-encoder model: cross-encoder/ms-marco-MiniLM-L-6-v2 on mps
 Cross-encoder model loaded successfully
 [1/50] Over what timeframe has the process of refining utility developed?
   Expected: Paragraph 0 (+ 1 other relevant)
   Goal: Abstracted detail 'centuries' (Linked to 'late 18th century' in Para 1)
-Reranked 26 paragraphs in 0.349s, returning top 10
-  Retrieved: Paragraph 0 (highly relevant) ✓
-  nDCG@10: 0.917, MRR: 1.000
+Reranked 26 paragraphs in 0.160s, returning top 10
+  Retrieved: Paragraph 16 (not relevant) ✗
+  nDCG@10: 0.306, MRR: 0.143
+    Top result: Cooperative utilitarianism focuses on the utility produced by coordination and cooperation between a...
 
 [2/50] How do you measure pain versus pleasure?
   Expected: Paragraph 1 (+ 1 other relevant)
   Goal: Target detail 'hedonic calculus' (Linked to Cardinal util in Para 37)
-Reranked 24 paragraphs in 0.309s, returning top 10
+Reranked 24 paragraphs in 0.063s, returning top 10
   Retrieved: Paragraph 1 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [3/50] Is it better to be a dissatisfied human or a satisfied fool?
   Expected: Paragraph 2 (+ 1 other relevant)
   Goal: Target detail 'Socrates' (Linked to Ideal util/higher values in Para 30)
-Reranked 22 paragraphs in 0.313s, returning top 10
+Reranked 22 paragraphs in 0.064s, returning top 10
   Retrieved: Paragraph 2 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [4/50] Do general rules matter when judging specific actions?
   Expected: Paragraph 3 (+ 1 other relevant)
   Goal: Abstracted detail 'without reference to rules' (Linked to Single-level in Para 45)
-Reranked 25 paragraphs in 0.308s, returning top 10
+Reranked 25 paragraphs in 0.043s, returning top 10
   Retrieved: Paragraph 3 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [5/50] What is the goal of following set guidelines?
   Expected: Paragraph 4 (+ 1 other relevant)
   Goal: Abstracted detail 'promote the greatest good' (Linked to Rule-consequentialism in Para 23)
-Reranked 25 paragraphs in 0.297s, returning top 10
-  Retrieved: Paragraph 4 (highly relevant) ✓
-  nDCG@10: 0.964, MRR: 1.000
+Reranked 25 paragraphs in 0.041s, returning top 10
+  Retrieved: Paragraph 49 (not relevant) ✗
+  nDCG@10: 0.459, MRR: 0.333
+    Top result: Agent-relative utilitarianism allows that while the general goal is maximizing utility, agents may h...
 
 [6/50] Is a large low-happiness population preferred?
   Expected: Paragraph 5 (+ 1 other relevant)
   Goal: Abstracted population preference (Contrast with Total util in Para 6)
-Reranked 23 paragraphs in 0.299s, returning top 10
+Reranked 23 paragraphs in 0.039s, returning top 10
   Retrieved: Paragraph 5 (highly relevant) ✓
   nDCG@10: 1.000, MRR: 1.000
 
 [7/50] What paradox involves a large barely happy population?
   Expected: Paragraph 6 (+ 1 other relevant)
   Goal: Target detail 'repugnant conclusion' (Linked to Impersonal util in Para 33)
-Reranked 25 paragraphs in 0.312s, returning top 10
+Reranked 25 paragraphs in 0.028s, returning top 10
   Retrieved: Paragraph 6 (highly relevant) ✓
-  nDCG@10: 0.917, MRR: 1.000
+  nDCG@10: 0.968, MRR: 1.000
 
 [8/50] Who helped develop the autonomy-focused ethical approach?
   Expected: Paragraph 7 (+ 1 other relevant)
   Goal: Target detail 'R.M. Hare' (Linked to Two-level util in Para 9)
-Reranked 27 paragraphs in 0.364s, returning top 10
+Reranked 27 paragraphs in 0.057s, returning top 10
   Retrieved: Paragraph 7 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [9/50] In suffering-focused ethics, is pain rated more intense than pleasure?
   Expected: Paragraph 8 (+ 1 other relevant)
   Goal: Target detail 'suffering is more intense' (Linked to Necessitarian util in Para 44)
-Reranked 23 paragraphs in 0.325s, returning top 10
+Reranked 23 paragraphs in 0.054s, returning top 10
   Retrieved: Paragraph 8 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [10/50] When does intuitive thinking need to switch to calculation?
   Expected: Paragraph 9 (+ 1 other relevant)
   Goal: Target detail 'when rules conflict' (Linked to Multi-level util in Para 20)
-Reranked 25 paragraphs in 0.334s, returning top 10
+Reranked 25 paragraphs in 0.047s, returning top 10
   Retrieved: Paragraph 9 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [11/50] Is good character valued even with bad results?
   Expected: Paragraph 10 (+ 1 other relevant)
   Goal: Abstracted 'fail to maximize' (Linked to Virtue consequentialism in Para 28)
-Reranked 28 paragraphs in 0.338s, returning top 10
+Reranked 28 paragraphs in 0.040s, returning top 10
   Retrieved: Paragraph 10 (highly relevant) ✓
-  nDCG@10: 1.000, MRR: 1.000
+  nDCG@10: 0.974, MRR: 1.000
 
 [12/50] Which modern philanthropy movement uses cosmopolitan moral arguments?
   Expected: Paragraph 11 (+ 1 other relevant)
   Goal: Target detail 'effective altruism' (Linked to Sentientist util in Para 41)
-Reranked 26 paragraphs in 0.356s, returning top 10
+Reranked 26 paragraphs in 0.036s, returning top 10
   Retrieved: Paragraph 11 (highly relevant) ✓
-  nDCG@10: 0.959, MRR: 1.000
+  nDCG@10: 0.961, MRR: 1.000
 
 [13/50] What theory focuses only on pleasure?
   Expected: Paragraph 12 (+ 1 other relevant)
   Goal: Target detail 'monistic' (Linked to Classical util in Para 1)
-Reranked 22 paragraphs in 0.284s, returning top 10
+Reranked 22 paragraphs in 0.058s, returning top 10
   Retrieved: Paragraph 41 (not relevant) ✗
-  nDCG@10: 0.629, MRR: 0.500
+  nDCG@10: 0.644, MRR: 0.500
     Top result: Sentientist utilitarianism explicitly restricts the moral community to beings capable of subjective ...
 
 [14/50] Does well-being have multiple factors?
   Expected: Paragraph 13 (+ 1 other relevant)
   Goal: Target detail 'pluralistic' (Linked to Objective List in Para 26)
-Reranked 26 paragraphs in 0.325s, returning top 10
+Reranked 26 paragraphs in 0.026s, returning top 10
   Retrieved: Paragraph 13 (highly relevant) ✓
-  nDCG@10: 1.000, MRR: 1.000
+  nDCG@10: 0.983, MRR: 1.000
 
 [15/50] If utility is a continuum, are there sharp moral boundaries?
   Expected: Paragraph 14 (+ 1 other relevant)
   Goal: Target detail 'no sharp boundaries' (Contrast with Satisficing in Para 15)
-Reranked 26 paragraphs in 0.303s, returning top 10
+Reranked 26 paragraphs in 0.025s, returning top 10
   Retrieved: Paragraph 14 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [16/50] What problem does the 'good enough' approach fix?
   Expected: Paragraph 15 (+ 1 other relevant)
   Goal: Target detail 'demanding nature' (Linked to Act util in Para 3)
-Reranked 30 paragraphs in 0.363s, returning top 10
+Reranked 30 paragraphs in 0.042s, returning top 10
   Retrieved: Paragraph 15 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [17/50] Can cooperation produce better results than individuals?
   Expected: Paragraph 16 (+ 1 other relevant)
   Goal: Abstracted 'better overall outcomes' (Linked to Universal util in Para 48)
-Reranked 25 paragraphs in 0.302s, returning top 10
+Reranked 25 paragraphs in 0.023s, returning top 10
   Retrieved: Paragraph 16 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [18/50] If avoiding direct calculation, what guides ensure good results?
   Expected: Paragraph 17 (+ 1 other relevant)
   Goal: Target detail 'virtues, rules, or dispositions' (Linked to Rule util in Para 4)
-Reranked 24 paragraphs in 0.298s, returning top 10
-  Retrieved: Paragraph 4 (marginally relevant) ~
-  nDCG@10: 0.710, MRR: 0.500
-    Top result: Rule utilitarianism argues that the rightness of an action depends on whether it conforms to rules t...
+Reranked 24 paragraphs in 0.088s, returning top 10
+  Retrieved: Paragraph 17 (highly relevant) ✓
+  nDCG@10: 1.000, MRR: 1.000
 
 [19/50] Is the future value of unborn people less?
   Expected: Paragraph 18 (+ 1 other relevant)
   Goal: Target detail 'temporal discounting' (Contrast with Person-affecting in Para 32)
-Reranked 23 paragraphs in 0.296s, returning top 10
+Reranked 23 paragraphs in 0.040s, returning top 10
   Retrieved: Paragraph 18 (highly relevant) ✓
-  nDCG@10: 0.917, MRR: 1.000
+  nDCG@10: 0.957, MRR: 1.000
 
 [20/50] Why prioritize probability over actual results?
   Expected: Paragraph 19 (+ 1 other relevant)
   Goal: Abstracted 'rarely know with certainty' (Linked to Foreseeable conseq in Para 25)
-Reranked 26 paragraphs in 0.294s, returning top 10
-  Retrieved: Paragraph 19 (highly relevant) ✓
-  nDCG@10: 0.961, MRR: 1.000
+Reranked 26 paragraphs in 0.063s, returning top 10
+  Retrieved: Paragraph 24 (not relevant) ✗
+  nDCG@10: 0.617, MRR: 0.500
+    Top result: Actual consequence utilitarianism judges actions solely by their actual results, not foreseeable or ...
 
 [21/50] In multi-level systems, do laws differ from individual acts?
   Expected: Paragraph 20 (+ 1 other relevant)
   Goal: Target detail 'constitutional principles' (Linked to Institutional util in Para 40)
-Reranked 23 paragraphs in 0.295s, returning top 10
-  Retrieved: Paragraph 23 (not relevant) ✗
-  nDCG@10: 0.442, MRR: 0.250
-    Top result: Rule-consequentialism evaluates moral rules by their consequences rather than individual actions. Wh...
+Reranked 23 paragraphs in 0.052s, returning top 10
+  Retrieved: Paragraph 20 (highly relevant) ✓
+  nDCG@10: 0.964, MRR: 1.000
 
 [22/50] Is distribution part of maximizing welfare?
   Expected: Paragraph 21 (+ 1 other relevant)
   Goal: Confirmation 'focused on maximizing total welfare' (Linked to Geometric util in Para 39)
-Reranked 26 paragraphs in 0.277s, returning top 10
+Reranked 26 paragraphs in 0.055s, returning top 10
   Retrieved: Paragraph 21 (highly relevant) ✓
-  nDCG@10: 1.000, MRR: 1.000
+  nDCG@10: 0.917, MRR: 1.000
 
 [23/50] What non-utility factor is combined with maximization for a baseline?
   Expected: Paragraph 22 (+ 1 other relevant)
   Goal: Target detail 'rights-based' (Linked to Hierarchical util in Para 46)
-Reranked 26 paragraphs in 0.329s, returning top 10
+Reranked 26 paragraphs in 0.052s, returning top 10
   Retrieved: Paragraph 22 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [24/50] When assessing rules, can values other than utility be included?
   Expected: Paragraph 23 (+ 1 other relevant)
   Goal: Abstracted 'incorporate non-utilitarian values' (Contrast with Rule util in Para 4)
-Reranked 24 paragraphs in 0.302s, returning top 10
+Reranked 24 paragraphs in 0.044s, returning top 10
   Retrieved: Paragraph 23 (highly relevant) ✓
-  nDCG@10: 0.983, MRR: 1.000
+  nDCG@10: 0.968, MRR: 1.000
 
 [25/50] How does luck affect judging actions by results?
   Expected: Paragraph 24 (+ 1 other relevant)
   Goal: Target detail 'moral luck' (Contrast with Foreseeable in Para 25)
-Reranked 26 paragraphs in 0.314s, returning top 10
+Reranked 26 paragraphs in 0.058s, returning top 10
   Retrieved: Paragraph 24 (highly relevant) ✓
-  nDCG@10: 0.974, MRR: 1.000
+  nDCG@10: 0.968, MRR: 1.000
 
 [26/50] Does judging by likelihood help maintain agent responsibility?
   Expected: Paragraph 25 (+ 1 other relevant)
   Goal: Abstracted 'holding agents responsible' (Linked to Expected util in Para 19)
-Reranked 25 paragraphs in 0.317s, returning top 10
+Reranked 25 paragraphs in 0.029s, returning top 10
   Retrieved: Paragraph 25 (highly relevant) ✓
   nDCG@10: 0.959, MRR: 1.000
 
 [27/50] In a checklist of well-being, which social bond is a good?
   Expected: Paragraph 26 (+ 1 other relevant)
   Goal: Target detail 'friendship' (Linked to Ideal util in Para 30)
-Reranked 25 paragraphs in 0.339s, returning top 10
+Reranked 25 paragraphs in 0.059s, returning top 10
   Retrieved: Paragraph 26 (highly relevant) ✓
-  nDCG@10: 1.000, MRR: 1.000
+  nDCG@10: 0.964, MRR: 1.000
 
 [28/50] Can unknown events provide satisfaction?
   Expected: Paragraph 27 (+ 1 other relevant)
   Goal: Abstracted 'don't directly affect experiences' (Linked to Preference util in Para 7)
-Reranked 22 paragraphs in 0.275s, returning top 10
+Reranked 22 paragraphs in 0.037s, returning top 10
   Retrieved: Paragraph 27 (highly relevant) ✓
   nDCG@10: 1.000, MRR: 1.000
 
 [29/50] Do virtues always yield good outcomes?
   Expected: Paragraph 28 (+ 1 other relevant)
   Goal: Abstracted 'dispositions that generally promote good' (Linked to Motive util in Para 10)
-Reranked 27 paragraphs in 0.366s, returning top 10
+Reranked 27 paragraphs in 0.056s, returning top 10
   Retrieved: Paragraph 28 (highly relevant) ✓
-  nDCG@10: 0.983, MRR: 1.000
+  nDCG@10: 0.957, MRR: 1.000
 
 [30/50] Which public domain is best for calculation?
   Expected: Paragraph 29 (+ 1 other relevant)
   Goal: Target detail 'policy' (Linked to Institutional util in Para 40)
-Reranked 26 paragraphs in 0.306s, returning top 10
+Reranked 26 paragraphs in 0.029s, returning top 10
   Retrieved: Paragraph 29 (highly relevant) ✓
-  nDCG@10: 0.974, MRR: 1.000
+  nDCG@10: 0.957, MRR: 1.000
 
 [31/50] Can things have value without causing happiness?
   Expected: Paragraph 30 (+ 1 other relevant)
   Goal: Abstracted 'do not produce positive mental states' (Linked to Objective List in Para 26)
-Reranked 23 paragraphs in 0.301s, returning top 10
+Reranked 23 paragraphs in 0.064s, returning top 10
   Retrieved: Paragraph 30 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [32/50] Is promoting utility a duty backed by God?
   Expected: Paragraph 31 (+ 1 other relevant)
   Goal: Target detail 'divine sanctions' (Linked to Classical/Paley context in Para 1)
-Reranked 26 paragraphs in 0.302s, returning top 10
+Reranked 26 paragraphs in 0.049s, returning top 10
   Retrieved: Paragraph 31 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [33/50] Is there a need to maximize population?
   Expected: Paragraph 32 (+ 1 other relevant)
   Goal: Rejection of 'maximize population size' (Contrast with Total util in Para 6)
-Reranked 25 paragraphs in 0.285s, returning top 10
-  Retrieved: Paragraph 32 (highly relevant) ✓
-  nDCG@10: 1.000, MRR: 1.000
+Reranked 25 paragraphs in 0.070s, returning top 10
+  Retrieved: Paragraph 5 (not relevant) ✗
+  nDCG@10: 0.644, MRR: 0.500
+    Top result: Average utilitarianism suggests we should maximize the average utility per person rather than total ...
 
 [34/50] Is creating new happy beings good?
   Expected: Paragraph 33 (+ 1 other relevant)
   Goal: Target detail 'creating new happy beings' (Linked to Total util in Para 6)
-Reranked 24 paragraphs in 0.292s, returning top 10
+Reranked 24 paragraphs in 0.044s, returning top 10
   Retrieved: Paragraph 33 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [35/50] Is an action right if you believe it works?
   Expected: Paragraph 34 (+ 1 other relevant)
   Goal: Abstracted 'beliefs and perspective' (Linked to Foreseeable in Para 25)
-Reranked 23 paragraphs in 0.306s, returning top 10
-  Retrieved: Paragraph 34 (highly relevant) ✓
-  nDCG@10: 0.917, MRR: 1.000
+Reranked 23 paragraphs in 0.038s, returning top 10
+  Retrieved: Paragraph 35 (not relevant) ✗
+  nDCG@10: 0.579, MRR: 0.500
+    Top result: Objective utilitarianism holds that an action is right only if it actually maximizes utility given t...
 
 [36/50] Is failure wrong despite good intentions?
   Expected: Paragraph 35 (+ 1 other relevant)
   Goal: Abstracted 'fails to produce best possible outcome' (Linked to Actual consequence in Para 24)
-Reranked 24 paragraphs in 0.290s, returning top 10
+Reranked 24 paragraphs in 0.030s, returning top 10
   Retrieved: Paragraph 35 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [37/50] Does the measurement allow one outcome to be rated 'twice as good'?
   Expected: Paragraph 36 (+ 1 other relevant)
   Goal: Rejection of 'twice as good' (Contrast with Cardinal util in Para 37)
-Reranked 27 paragraphs in 0.350s, returning top 10
+Reranked 27 paragraphs in 0.046s, returning top 10
   Retrieved: Paragraph 36 (highly relevant) ✓
-  nDCG@10: 0.917, MRR: 1.000
+  nDCG@10: 0.961, MRR: 1.000
 
 [38/50] Can total welfare be calculated mathematically?
   Expected: Paragraph 37 (+ 1 other relevant)
   Goal: Abstracted 'summation of total welfare' (Linked to Classical util in Para 1)
-Reranked 22 paragraphs in 0.272s, returning top 10
+Reranked 22 paragraphs in 0.032s, returning top 10
   Retrieved: Paragraph 37 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [39/50] Do lives barely worth living add value?
   Expected: Paragraph 38 (+ 1 other relevant)
   Goal: Rejection of 'barely worth living' (Contrast with Repugnant Conclusion in Para 6)
-Reranked 24 paragraphs in 0.289s, returning top 10
+Reranked 24 paragraphs in 0.079s, returning top 10
   Retrieved: Paragraph 38 (highly relevant) ✓
-  nDCG@10: 0.974, MRR: 1.000
+  nDCG@10: 1.000, MRR: 1.000
 
 [40/50] Do resources help the wealthy less?
   Expected: Paragraph 39 (+ 1 other relevant)
   Goal: Target detail 'wealthy person vs poor person' (Linked to Prioritarian in Para 21)
-Reranked 22 paragraphs in 0.261s, returning top 10
+Reranked 22 paragraphs in 0.038s, returning top 10
   Retrieved: Paragraph 39 (highly relevant) ✓
-  nDCG@10: 0.983, MRR: 1.000
+  nDCG@10: 0.974, MRR: 1.000
 
 [41/50] Must public structures be impartial?
   Expected: Paragraph 40 (+ 1 other relevant)
   Goal: Abstracted 'institutions must be impartial' (Linked to Multi-level util in Para 20)
-Reranked 25 paragraphs in 0.288s, returning top 10
+Reranked 25 paragraphs in 0.035s, returning top 10
   Retrieved: Paragraph 40 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [42/50] Do non-living entities have value?
   Expected: Paragraph 41 (+ 1 other relevant)
   Goal: Rejection of 'non-living entities' (Linked to Global util in Para 11)
-Reranked 27 paragraphs in 0.325s, returning top 10
+Reranked 27 paragraphs in 0.040s, returning top 10
   Retrieved: Paragraph 41 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [43/50] Is animal suffering relevant only for its impact on humans?
   Expected: Paragraph 42 (+ 1 other relevant)
   Goal: Target detail 'instrumentally relevant' (Contrast with Sentientist in Para 41)
-Reranked 21 paragraphs in 0.256s, returning top 10
+Reranked 21 paragraphs in 0.035s, returning top 10
   Retrieved: Paragraph 42 (highly relevant) ✓
-  nDCG@10: 1.000, MRR: 1.000
+  nDCG@10: 0.961, MRR: 1.000
 
 [44/50] Is a sphere of personal freedom essential for long-term utility?
   Expected: Paragraph 43 (+ 1 other relevant)
   Goal: Target detail 'sphere of protected rights' (Linked to Mill/Liberty in Para 2)
-Reranked 23 paragraphs in 0.290s, returning top 10
+Reranked 23 paragraphs in 0.028s, returning top 10
   Retrieved: Paragraph 43 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 [45/50] Is there an obligation to create happy beings?
   Expected: Paragraph 44 (+ 1 other relevant)
   Goal: Rejection of 'obligation to bring into existence' (Linked to Person-affecting in Para 32)
-Reranked 22 paragraphs in 0.290s, returning top 10
+Reranked 22 paragraphs in 0.039s, returning top 10
   Retrieved: Paragraph 44 (highly relevant) ✓
-  nDCG@10: 0.983, MRR: 1.000
+  nDCG@10: 0.974, MRR: 1.000
 
 [46/50] In direct maximization, are rules of thumb dangerous?
   Expected: Paragraph 45 (+ 1 other relevant)
   Goal: Target detail 'dangerous distractions' (Linked to Act util in Para 3)
-Reranked 25 paragraphs in 0.303s, returning top 10
+Reranked 25 paragraphs in 0.040s, returning top 10
   Retrieved: Paragraph 45 (highly relevant) ✓
   nDCG@10: 0.974, MRR: 1.000
 
 [47/50] Do basic needs take strict priority over luxuries?
   Expected: Paragraph 46 (+ 1 other relevant)
   Goal: Target detail 'lexical priority' (Linked to Threshold util in Para 22)
-Reranked 23 paragraphs in 0.286s, returning top 10
+Reranked 23 paragraphs in 0.025s, returning top 10
   Retrieved: Paragraph 46 (highly relevant) ✓
   nDCG@10: 1.000, MRR: 1.000
 
 [48/50] Are moral senses shortcuts for utility?
   Expected: Paragraph 47 (+ 1 other relevant)
   Goal: Target detail 'heuristic for utility' (Linked to Indirect util in Para 17)
-Reranked 25 paragraphs in 0.276s, returning top 10
+Reranked 25 paragraphs in 0.026s, returning top 10
   Retrieved: Paragraph 47 (highly relevant) ✓
-  nDCG@10: 0.957, MRR: 1.000
+  nDCG@10: 0.974, MRR: 1.000
 
 [49/50] Does the universal approach bridge duty and consequences?
   Expected: Paragraph 48 (+ 1 other relevant)
   Goal: Target detail 'bridging Kantian and utilitarian' (Linked to Rule util in Para 4)
-Reranked 25 paragraphs in 0.293s, returning top 10
+Reranked 25 paragraphs in 0.025s, returning top 10
   Retrieved: Paragraph 48 (highly relevant) ✓
-  nDCG@10: 0.959, MRR: 1.000
+  nDCG@10: 0.961, MRR: 1.000
 
 [50/50] Does the relative view allow for personal commitments?
   Expected: Paragraph 49 (+ 1 other relevant)
   Goal: Abstracted 'accommodate personal commitments' (Contrast with Institutional in Para 40)
-Reranked 25 paragraphs in 0.293s, returning top 10
+Reranked 25 paragraphs in 0.024s, returning top 10
   Retrieved: Paragraph 49 (highly relevant) ✓
   nDCG@10: 0.917, MRR: 1.000
 
 ================================================================================
-Results: 47/50 correct (94.0% accuracy)
-Average nDCG@10: 0.928
-Average MRR:     0.965
+Results: 44/50 correct (88.0% accuracy)
+Average nDCG@10: 0.899
+Average MRR:     0.930
 ================================================================================
 
 
@@ -723,12 +726,12 @@ FAISS Only:
   Overall MRR:         0.740
 
 FAISS + Reranking:
-  Overall Accuracy:    94.0%
-  Overall nDCG@10:     0.928
-  Overall MRR:         0.965
+  Overall Accuracy:    88.0%
+  Overall nDCG@10:     0.899
+  Overall MRR:         0.930
 
 Overall Improvement:
-  Accuracy:    +32.0 pp
-  nDCG@10:     +22.1% relative improvement
-  MRR:         +30.4% relative improvement
+  Accuracy:    +26.0 pp
+  nDCG@10:     +18.3% relative improvement
+  MRR:         +25.6% relative improvement
 ================================================================================

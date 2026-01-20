@@ -78,7 +78,7 @@ class SearchRequest(BaseModel):
     top_k: int = 5
     deduplicate_paragraphs: bool = True
     use_reranking: bool = False  # Enable 2-stage retrieval with cross-encoder reranking
-    top_k_faiss: int = 50  # Number of candidates from FAISS (stage 1)
+    top_k_faiss: int = 30  # Number of candidates from FAISS (stage 1)
     context_window: int = 2  # Number of paragraphs before/after for context expansion
 
 
@@ -86,7 +86,7 @@ class GenerateRequest(BaseModel):
     query: str
     top_k_context: int = 5  # Number of document excerpts to retrieve
     use_reranking: bool = True  # Use cross-encoder reranking for better quality
-    top_k_faiss: int = 50  # FAISS candidates (if reranking enabled)
+    top_k_faiss: int = 30  # FAISS candidates (if reranking enabled)
     context_window: int = 0  # Paragraphs before/after (0 = main paragraph only)
     temperature: float = 0.7  # Sampling temperature for generation
     max_output_tokens: int = 8192  # Maximum tokens in generated response
