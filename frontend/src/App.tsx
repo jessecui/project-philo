@@ -178,7 +178,7 @@ export default function App() {
     setError("");
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "/api";
+      const apiUrl = import.meta.env.VITE_API_URL || "";
       const response = await fetch(`${apiUrl}/search-and-generate`, {
         method: "POST",
         headers: {
