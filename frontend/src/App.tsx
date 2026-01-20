@@ -171,6 +171,14 @@ export default function App() {
     setQuery(exampleQuery);
   };
 
+  const handleReset = () => {
+    setQuery("");
+    setAnswer("");
+    setSources([]);
+    setError("");
+    setSourcesExpanded(false);
+  };
+
   return (
     <>
       {!isAuthenticated && <AuthModal onAuthenticated={handleAuthenticated} />}
@@ -178,7 +186,12 @@ export default function App() {
         <div className="max-w-4xl mx-auto space-y-8 py-12">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-5xl font-bold text-white">Project Philo</h1>
+            <h1
+              onClick={handleReset}
+              className="text-5xl font-bold text-white cursor-pointer hover:text-slate-200 transition-colors"
+            >
+              Project Philo
+            </h1>
             <p className="text-slate-400/80 text-lg">
               Your AI philosophy assistant, powered by semantic search and
               intelligent reranking.
