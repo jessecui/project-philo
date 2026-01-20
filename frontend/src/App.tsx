@@ -271,7 +271,10 @@ export default function App() {
 
           {/* Search Box */}
           <div className="bg-slate-900/80 backdrop-blur border border-slate-700 rounded-lg p-4 sm:p-8 space-y-6">
-            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+            <form
+              onSubmit={handleSearch}
+              className="flex flex-col sm:flex-row gap-3"
+            >
               <input
                 type="text"
                 value={query}
@@ -314,7 +317,10 @@ export default function App() {
           {/* Available Works */}
           {!answer && !isLoading && (
             <p className="text-slate-400 text-sm text-center -mt-4">
-              Available works: <em>Beyond Good and Evil</em>, <em>Meditations</em>, <em>Self-Reliance</em>, <em>Tao Te Ching</em>, <em>The Enchiridion</em>, <em>The Myth of Sisyphus</em>
+              Available works: <em>Beyond Good and Evil</em>,{" "}
+              <em>Meditations</em>, <em>Self-Reliance</em>,{" "}
+              <em>Tao Te Ching</em>, <em>The Enchiridion</em>,{" "}
+              <em>The Myth of Sisyphus</em>
             </p>
           )}
 
@@ -325,11 +331,11 @@ export default function App() {
               <div className="flex flex-wrap gap-2 justify-center">
                 {[
                   "What does it mean to live authentically?",
+                  "When should I act versus wait?",
                   "Why do we need constraints to be free?",
-                  "Is it better to be good or to be great?",
-                  "When should I act versus wait?",                  
-                  "Is suffering a mistake or a tool?",
                   "Is it better to know the truth or to be happy?",
+                  "What does it mean to be a good leader?",
+                  "Is it better to be good or to be great?",
                 ].map((question) => (
                   <button
                     key={question}
