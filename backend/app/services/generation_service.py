@@ -67,7 +67,9 @@ class GeminiGenerator:
         context_parts.append("=== Retrieved Document Excerpts ===\n")
 
         for i, result in enumerate(search_results, 1):
-            context_parts.append(f"\n[{i}] Document: {result.filename}, Paragraph {result.paragraph_idx}")
+            context_parts.append(
+                f"\n[{i}] Document: {result.filename}, Paragraph {result.paragraph_idx}"
+            )
 
             if result.reranking_score is not None:
                 context_parts.append(

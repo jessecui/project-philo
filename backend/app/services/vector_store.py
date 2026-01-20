@@ -202,7 +202,7 @@ class VectorStore:
 
         # Group by paragraph, keep best score per paragraph
         seen_paragraphs: Dict[Tuple[str, int], float] = {}
-        
+
         for distance, idx in zip(distances[0], indices[0]):
             if idx == -1:
                 continue
@@ -216,8 +216,10 @@ class VectorStore:
 
         # Build results sorted by similarity
         results = []
-        sorted_paragraphs = sorted(seen_paragraphs.items(), key=lambda x: x[1], reverse=True)
-        
+        sorted_paragraphs = sorted(
+            seen_paragraphs.items(), key=lambda x: x[1], reverse=True
+        )
+
         for (doc_id, para_idx), similarity in sorted_paragraphs[:top_k]:
             doc_meta = self.documents.get(doc_id)
             if not doc_meta:
@@ -437,7 +439,7 @@ class VectorStore:
 
         # Stage 2: Cross-encoder reranking
         paragraphs_for_reranking = [
-            (doc_id, para_idx, text) 
+            (doc_id, para_idx, text)
             for (doc_id, para_idx), text in unique_paragraphs.items()
         ]
 
