@@ -447,6 +447,7 @@ async def search_documents(request: SearchRequest):
                 result_dict = {
                     "doc_id": result.doc_id,
                     "filename": result.filename,
+                    "author": result.author,
                     "paragraph_idx": result.paragraph_idx,
                     "paragraph_text": result.paragraph_text,
                     "reranking_score": (
@@ -497,6 +498,7 @@ async def search_documents(request: SearchRequest):
                     {
                         "doc_id": result.doc_id,
                         "filename": result.filename,
+                        "author": result.author,
                         "paragraph_idx": result.paragraph_idx,
                         "paragraph_text": result.paragraph_text,
                     }
@@ -652,6 +654,7 @@ async def generate_from_results(request: GenerateFromResultsRequest):
                 sources_data = [
                     {
                         "filename": r.filename,
+                        "author": r.author,
                         "paragraph_idx": r.paragraph_idx,
                         "text": r.paragraph_text,
                         "score": (
@@ -770,6 +773,7 @@ async def search_and_generate(request: GenerateRequest):
                 sources_data = [
                     {
                         "filename": r.filename,
+                        "author": r.author,
                         "paragraph_idx": r.paragraph_idx,
                         "text": r.paragraph_text,
                         "score": (

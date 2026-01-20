@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface Source {
   filename: string;
+  author: string | null;
   paragraph_idx: number;
   text: string;
   score: number | null;
@@ -375,9 +376,13 @@ export default function App() {
                               <span className="text-blue-400 font-semibold">[{idx + 1}]</span>
                               <span className="font-medium text-blue-400">
                                 {source.filename
-                                  .replace(/\.[^/.]+$/, "")
+                                  .replace(/\.txt$/, "")
+                                  .split("__")[0]
                                   .replace(/_/g, " ")}
                               </span>
+                              {source.author && (
+                                <span className="text-slate-400">by {source.author}</span>
+                              )}
                             </div>
                             {source.score !== null && (
                               <div className="text-xs text-slate-400">

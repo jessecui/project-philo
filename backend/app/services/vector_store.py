@@ -19,6 +19,7 @@ class DocumentMetadata:
     file_type: str
     total_sentences: int
     total_paragraphs: int
+    author: Optional[str] = None
 
 
 @dataclass
@@ -39,6 +40,7 @@ class SearchResult:
     filename: str
     paragraph_idx: int
     paragraph_text: str
+    author: Optional[str] = None
     reranking_score: Optional[float] = None
     context_paragraphs_before: Optional[List[str]] = None
     context_paragraphs_after: Optional[List[str]] = None
@@ -114,6 +116,7 @@ class VectorStore:
         sentences: List[str],
         paragraph_indices: List[int],
         embeddings: List[List[float]],
+        author: Optional[str] = None,
     ) -> bool:
         """
         Index a document with its sentences and embeddings.
@@ -125,6 +128,7 @@ class VectorStore:
             sentences: List of sentence strings
             paragraph_indices: Paragraph index for each sentence
             embeddings: Embedding vectors for each sentence
+            author: Author name (optional)
 
         Returns:
             True if successful
@@ -141,6 +145,7 @@ class VectorStore:
             file_type=file_type,
             total_sentences=len(sentences),
             total_paragraphs=total_paragraphs,
+            author=author,
         )
 
         # Build paragraph cache (group sentences by paragraph)
@@ -233,6 +238,7 @@ class VectorStore:
                     filename=doc_meta.filename,
                     paragraph_idx=para_idx,
                     paragraph_text=paragraph_text,
+                    author=doc_meta.author,
                 )
             )
 
@@ -465,6 +471,7 @@ class VectorStore:
                     filename=doc_meta.filename,
                     paragraph_idx=para_idx,
                     paragraph_text=para_text,
+                    author=doc_meta.author,
                     reranking_score=rerank_score,
                     context_paragraphs_before=paras_before,
                     context_paragraphs_after=paras_after,

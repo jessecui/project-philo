@@ -18,6 +18,30 @@ from app.services.distributed_ingestion import DistributedIngestionPipeline
 from app.services.vector_store import VectorStore
 
 
+def parse_filename(filename: str) -> tuple[str, str | None]:
+    """
+    Parse filename to extract title and author.
+
+    Format: Title__Author.txt (double underscore separates title from author)
+    Example: Self_Reliance__Ralph_Waldo_Emerson.txt -> ("Self_Reliance", "Ralph Waldo Emerson")
+
+    Args:
+        filename: The filename to parse
+
+    Returns:
+        Tuple of (title, author) where author may be None if not present
+    """
+    stem = Path(filename).stem
+
+    if "__" in stem:
+        parts = stem.split("__", 1)
+        title = parts[0]
+        author = parts[1].replace("_", " ") if len(parts) > 1 else None
+        return (title, author)
+
+    return (stem, None)
+
+
 def index_texts_directory(
     texts_dir: str = "texts",
     data_dir: str = "data",
@@ -80,7 +104,9 @@ def index_texts_directory(
 
     print(f"\n📚 Found {len(text_files)} text file(s) to index:")
     for file in text_files:
-        print(f"  - {file.name}")
+        title, author = parse_filename(file.name)
+        author_str = f" by {author}" if author else ""
+        print(f"  - {file.name}{author_str}")
 
     # Process each file
     total_sentences = 0
@@ -125,6 +151,7 @@ def index_texts_directory(
             # Index the document
             index_start = time.time()
             print("  💾 Adding to vector store...")
+            title, author = parse_filename(text_file.name)
             doc_id = vector_store.index_document(
                 doc_id=f"doc_{files_processed}_{text_file.stem}",
                 filename=text_file.name,
@@ -132,6 +159,7 @@ def index_texts_directory(
                 sentences=sentences,
                 embeddings=embeddings,
                 paragraph_indices=paragraph_indices,
+                author=author,
             )
             index_time = time.time() - index_start
             total_indexing_time += index_time

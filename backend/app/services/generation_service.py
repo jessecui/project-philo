@@ -67,9 +67,16 @@ class GeminiGenerator:
         context_parts.append("=== Retrieved Document Excerpts ===\n")
 
         for i, result in enumerate(search_results, 1):
-            context_parts.append(
-                f"\n[{i}] Document: {result.filename}, Paragraph {result.paragraph_idx}"
-            )
+            # Parse title from filename (remove extension and double-underscore author suffix)
+            title = result.filename.replace(".txt", "").split("__")[0].replace("_", " ")
+
+            # Build source line with author if available
+            if result.author:
+                source_line = f'\n[{i}] "{title}" by {result.author}, Paragraph {result.paragraph_idx}'
+            else:
+                source_line = f'\n[{i}] "{title}", Paragraph {result.paragraph_idx}'
+
+            context_parts.append(source_line)
 
             if result.reranking_score is not None:
                 context_parts.append(
@@ -95,7 +102,7 @@ Guidelines:
 
 2. **Be concise**: Aim for 2-3 paragraphs. Get to the point, then support it.
 
-3. **Cite with numbered markers**: When referencing information from a source, include the citation number in brackets like [1], [2], etc. at the end of the relevant sentence or claim. Use separate brackets for multiple citations (e.g., [1] [3], not [1, 3]). Use the source numbers provided in the excerpts. You may also mention authors naturally alongside the citation.
+3. **Cite with numbered markers**: When referencing information from a source, include the citation number in brackets like [1], [2], etc. at the end of the relevant sentence or claim. Use separate brackets for multiple citations (e.g., [1] [3], not [1, 3]). Mention the author's name and/or work title naturally when first citing a source (e.g., "Emerson argues in Self Reliance... [1]").
 
 4. **Answer the question**: Lead with a clear response, then explain the reasoning from the sources.
 
