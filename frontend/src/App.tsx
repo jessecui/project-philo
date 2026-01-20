@@ -311,9 +311,16 @@ export default function App() {
             </form>
           </div>
 
+          {/* Available Works */}
+          {!answer && !isLoading && (
+            <p className="text-slate-400 text-sm text-center -mt-4">
+              Available works: <em>Beyond Good and Evil</em>, <em>Meditations</em>, <em>Self-Reliance</em>, <em>Tao Te Ching</em>, <em>The Enchiridion</em>, <em>The Myth of Sisyphus</em>
+            </p>
+          )}
+
           {/* Example Questions */}
           {!answer && !isLoading && (
-            <div className="space-y-3">
+            <div className="space-y-3 mt-4">
               <p className="text-slate-400 text-sm text-center">Try asking:</p>
               <div className="flex flex-wrap gap-2 justify-center">
                 {[
@@ -418,16 +425,6 @@ export default function App() {
             </div>
           )}
         </div>
-
-        {/* Available Works - Fixed at bottom */}
-        {!answer && !isLoading && (
-          <div className="fixed bottom-0 left-0 right-0 py-4 text-center bg-linear-to-t from-slate-900 to-transparent">
-            <hr className="border-slate-700/50 max-w-4xl mx-auto mb-4" />
-            <p className="text-slate-400 text-sm">
-              Available works: <em>Beyond Good and Evil</em>, <em>Meditations</em>, <em>Self-Reliance</em>, <em>Tao Te Ching</em>, <em>The Enchiridion</em>, <em>The Myth of Sisyphus</em>
-            </p>
-          </div>
-        )}
       </div>
     </>
   );
