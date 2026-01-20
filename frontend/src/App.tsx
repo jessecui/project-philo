@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { ChevronDown, Loader2, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { AuthModal } from "@/components/auth-modal";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ export default function App() {
   const [sources, setSources] = useState<Source[]>([]);
   const [error, setError] = useState("");
   const [sourcesExpanded, setSourcesExpanded] = useState(false);
+  const [highlightedSource, setHighlightedSource] = useState<number | null>(null);
 
   useEffect(() => {
     const authCookie = Cookies.get("creator_auth");
@@ -27,6 +28,35 @@ export default function App() {
       setIsAuthenticated(true);
     }
   }, []);
+
+  // Clear highlight on click anywhere
+  useEffect(() => {
+    if (highlightedSource === null) return;
+
+    const clearHighlight = () => setHighlightedSource(null);
+
+    // Use capture phase to catch click before it bubbles
+    window.addEventListener("click", clearHighlight, { capture: true });
+
+    return () => window.removeEventListener("click", clearHighlight, { capture: true });
+  }, [highlightedSource]);
+
+  const scrollToSource = useCallback((sourceNum: number) => {
+    // Validate source exists
+    if (sourceNum < 1 || sourceNum > sources.length) return;
+
+    // Expand sources if collapsed
+    setSourcesExpanded(true);
+
+    // Small delay to allow expansion
+    setTimeout(() => {
+      const element = document.getElementById(`source-${sourceNum}`);
+      if (element) {
+        setHighlightedSource(sourceNum);
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 100);
+  }, [sources.length]);
 
   const handleAuthenticated = () => {
     setIsAuthenticated(true);
@@ -65,12 +95,12 @@ export default function App() {
     });
   };
 
-  const formatInlineText = (text: string) => {
+  const formatInlineText = useCallback((text: string) => {
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
 
-    // Match **bold** and *italic* (but not ** or * alone)
-    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+    // Match **bold**, *italic*, and [n] citations
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|\[\d+\])/g;
     let match;
 
     while ((match = regex.exec(text)) !== null) {
@@ -87,6 +117,23 @@ export default function App() {
         );
       } else if (matchedText.startsWith("*") && matchedText.endsWith("*")) {
         parts.push(<em key={match.index}>{matchedText.slice(1, -1)}</em>);
+      } else if (/^\[\d+\]$/.test(matchedText)) {
+        // Citation marker - check if valid source exists
+        const num = parseInt(matchedText.slice(1, -1));
+        if (num >= 1 && num <= sources.length) {
+          parts.push(
+            <button
+              key={match.index}
+              onClick={() => scrollToSource(num)}
+              className="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer font-medium"
+            >
+              {matchedText}
+            </button>
+          );
+        } else {
+          // Invalid citation - render as plain text
+          parts.push(matchedText);
+        }
       }
 
       lastIndex = regex.lastIndex;
@@ -97,7 +144,7 @@ export default function App() {
     }
 
     return parts;
-  };
+  }, [sources.length, scrollToSource]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,6 +224,7 @@ export default function App() {
     setSources([]);
     setError("");
     setSourcesExpanded(false);
+    setHighlightedSource(null);
   };
 
   return (
@@ -314,13 +362,22 @@ export default function App() {
                       {sources.map((source, idx) => (
                         <div
                           key={idx}
-                          className="bg-slate-950/80 border border-slate-800 rounded-lg p-6 space-y-2"
+                          id={`source-${idx + 1}`}
+                          className={cn(
+                            "bg-slate-950/80 border rounded-lg p-6 space-y-2 transition-all duration-300",
+                            highlightedSource === idx + 1
+                              ? "border-blue-400 ring-2 ring-blue-400/50 shadow-lg shadow-blue-500/20"
+                              : "border-slate-800"
+                          )}
                         >
                           <div className="flex justify-between items-start">
-                            <div className="font-medium text-blue-400">
-                              {source.filename
-                                .replace(/\.[^/.]+$/, "")
-                                .replace(/_/g, " ")}
+                            <div className="flex items-center gap-2">
+                              <span className="text-blue-400 font-semibold">[{idx + 1}]</span>
+                              <span className="font-medium text-blue-400">
+                                {source.filename
+                                  .replace(/\.[^/.]+$/, "")
+                                  .replace(/_/g, " ")}
+                              </span>
                             </div>
                             {source.score !== null && (
                               <div className="text-xs text-slate-400">

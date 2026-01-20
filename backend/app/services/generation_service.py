@@ -95,7 +95,7 @@ Guidelines:
 
 2. **Be concise**: Aim for 2-3 paragraphs. Get to the point, then support it.
 
-3. **Cite naturally**: Reference works and authors (e.g., "Lao Tzu suggests in the Tao Te Ching..."). Quote directly only when the original wording is especially powerful.
+3. **Cite with numbered markers**: When referencing information from a source, include the citation number in brackets like [1], [2], etc. at the end of the relevant sentence or claim. Use separate brackets for multiple citations (e.g., [1] [3], not [1, 3]). Use the source numbers provided in the excerpts. You may also mention authors naturally alongside the citation.
 
 4. **Answer the question**: Lead with a clear response, then explain the reasoning from the sources.
 
@@ -141,7 +141,7 @@ Tone: Warm but not gushing. Clear but not dry. Like explaining an interesting id
             top_p=0.95,
             top_k=40,
             thinking_config=ThinkingConfig(
-                thinking_level="low"  # Low thinking for fast RAG responses
+                thinking_level="medium"  # Medium thinking for accurate citations
             ),
         )
 
