@@ -56,8 +56,6 @@ htmlcov/
 
 # backend specific
 backend/uploads/
-backend/data/faiss.index
-backend/data/metadata.json
 
 # vscode
 .vscode
