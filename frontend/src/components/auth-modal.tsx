@@ -23,7 +23,7 @@ export function AuthModal({ onAuthenticated }: AuthModalProps) {
     setError("");
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const apiUrl = import.meta.env.VITE_API_URL || "";
       const response = await fetch(`${apiUrl}/validate-creator`, {
         method: "POST",
         headers: {
@@ -45,7 +45,7 @@ export function AuthModal({ onAuthenticated }: AuthModalProps) {
         setError("Incorrect answer. Please try again.");
         setAnswer("");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
