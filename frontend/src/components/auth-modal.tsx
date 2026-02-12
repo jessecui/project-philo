@@ -64,11 +64,11 @@ export function AuthModal({ onAuthenticated }: AuthModalProps) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="answer" className="text-sm font-medium block text-slate-300">
+            <p className="text-sm font-medium text-slate-300">
               Who created this app?
-            </label>
+            </p>
             <input
-              id="answer"
+              id="creator-question"
               type="text"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
