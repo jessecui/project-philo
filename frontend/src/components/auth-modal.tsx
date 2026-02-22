@@ -73,8 +73,9 @@ export function AuthModal({ onAuthenticated }: AuthModalProps) {
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               disabled={isLoading}
+              autoComplete="off"
               className="w-full px-4 py-3 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-slate-950 text-white placeholder-slate-500 transition-all"
-              placeholder="Enter your answer"
+              placeholder="Enter name"
               autoFocus
             />
           </div>
